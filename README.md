@@ -4,6 +4,11 @@
 
 # FURAI AI
 
+![status](https://img.shields.io/badge/status-experimental-orange)
+![runtime](https://img.shields.io/badge/runtime-cloudflare_workers-black)
+![ui](https://img.shields.io/badge/interface-terminal-yellow)
+![license](https://img.shields.io/badge/license-MIT-green)
+
 Experimental cosmic AI terminal running on Cloudflare Workers.
 
 FURAI is an atmospheric AI interface designed as a deep-space archive terminal.
