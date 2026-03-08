@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/furai-ai/furai-ai/main/preview.png" width="900">
+</p>
+
 # FURAI AI
 
 Experimental cosmic AI terminal running on Cloudflare Workers.
