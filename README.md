@@ -15,6 +15,9 @@ FURAI is an atmospheric AI interface designed as a deep-space archive terminal.
 
 The system simulates communication with an ancient archive vessel **Velorum** — an autonomous AI preserving memories of lost civilizations.
 
+## Live Demo
+🌌 https://furai.space
+
 ## Features
 
 - cinematic terminal interface
