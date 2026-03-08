@@ -47,3 +47,8 @@ More systems and modules will evolve over time.
 
 index.ts — FURAI AI engine  
 ui.ts — Velorum terminal interface
+
+## Open Source Scope
+
+This repository contains the terminal interface of FURAI.
+The core AI engine and memory architecture remain private.
