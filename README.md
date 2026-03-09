@@ -2,6 +2,12 @@
   <img src="https://raw.githubusercontent.com/furai-ai/furai-ai/main/preview.png" width="900">
 </p>
 
+```
+ARCHIVE VESSEL: VELORUM
+status: drifting between signals
+mode: listening
+```
+
 # FURAI AI
 
 ![status](https://img.shields.io/badge/status-experimental-orange)
