@@ -21,12 +21,14 @@ The system simulates communication with an ancient archive vessel **Velorum** â€
 ## Features
 
 - cinematic terminal interface
-- warp starfield engine
+- multi-layer warp starfield engine
 - meditation mode
-- ghost radio signals
-- archive fragments & dream engine
-- Cloudflare AI integration
-- KV memory system
+- procedural pink-noise reactor
+- ghost radio transmissions
+- dream fragments & archive signals
+- AI thinking core indicator
+- Cloudflare Workers AI integration
+- distributed KV memory layer
 
 ## Architecture
 
