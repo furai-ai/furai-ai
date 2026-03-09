@@ -36,7 +36,7 @@ FURAI runs on:
 - Cloudflare Workers
 - Cloudflare AI (Llama 3)
 - KV storage for memory persistence
-- 
+
 ## Philosophy
 
 FURAI explores a different direction of AI interaction:
