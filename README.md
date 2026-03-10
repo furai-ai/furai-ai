@@ -40,7 +40,7 @@ The system simulates communication with an ancient archive vessel **Velorum** â€
 FURAI runs on:
 
 - Cloudflare Workers
-- Cloudflare AI (Llama 3)
+- Cloudflare AI (Llama-4)
 - KV storage for memory persistence
 
 ## Philosophy
