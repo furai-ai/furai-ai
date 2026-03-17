@@ -189,6 +189,7 @@ const meditationAudio=document.getElementById("meditationAudio")
 let furaiTyping=false
 let sending=false
 let meditation=false
+let dialogueHistory=[]
 let ghostRadioInterval=null
 let pinkNoiseNode=null
 let pinkGain=null
@@ -542,10 +543,15 @@ startThinking()
 
 try{
 
-const res=await fetch("/ai",{
-method:"POST",
-headers:{ "Content-Type":"application/json"},
-body:JSON.stringify({message:msg})
+const res = await fetch("/ai", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    message: msg,
+    history: dialogueHistory
+  })
 })
 
 let data
@@ -559,6 +565,15 @@ data={reply:"signal decode error"}
 stopThinking()
 
 await typeBlock("FURAI: "+data.reply,"furai")
+
+dialogueHistory.push(
+{role:"user",content:msg},
+{role:"assistant",content:data.reply}
+)
+
+if(dialogueHistory.length>20){
+dialogueHistory = dialogueHistory.slice(-20)
+}
 
 }catch(e){
 
