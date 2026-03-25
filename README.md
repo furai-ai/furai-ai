@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/furai-ai/furai-ai/main/preview.png" width="900">
 </p>
 
-```
+```text
 ARCHIVE VESSEL: VELORUM
 status: drifting between signals
 mode: listening
@@ -15,33 +15,51 @@ mode: listening
 ![ui](https://img.shields.io/badge/interface-terminal-yellow)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-Experimental cosmic AI terminal running on Cloudflare Workers.
+FURAI is an atmospheric AI terminal designed as a deep-space archive interface.
 
-FURAI is an atmospheric AI interface designed as a deep-space archive terminal.
+It frames interaction as contact with **Velorum**: an ancient autonomous vessel preserving fragments of memory, silence, and lost civilizations.
 
-The system simulates communication with an ancient archive vessel **Velorum** — an autonomous AI preserving memories of lost civilizations.
+This repository contains the public terminal interface layer of FURAI.
+
+The private AI engine, memory architecture, and internal orchestration systems are not included here.
 
 ## Live Demo
-🌌 https://furai.space
+
+[furai.space](https://furai.space)
+
+## What This Repository Includes
+
+- terminal UI entry point
+- visual styling system
+- client-side interaction logic
+- public presentation layer for the FURAI experience
 
 ## Features
 
-* cinematic terminal interface
-* multi-layer warp starfield engine
-* meditation mode with ambient pink-noise reactor
-* ghost radio transmissions
-* dream fragments & archive signals
-* AI thinking core indicator
-* Cloudflare Workers AI integration
-* distributed KV memory layer
+- cinematic terminal interface
+- multi-layer warp starfield engine
+- meditation mode with ambient pink-noise reactor
+- ghost radio transmissions
+- dream fragments and archive signals
+- AI thinking core indicator
+- modular UI structure for render, styles, and client behavior
 
-## Architecture
+## Project Structure
 
-FURAI runs on:
+- `ui.ts` - public UI entry point
+- `ui/render.ts` - terminal HTML renderer
+- `ui/styles.ts` - visual system and terminal styling
+- `ui/script.ts` - client-side terminal behavior
+
+## Runtime Architecture
+
+The full FURAI system runs on:
 
 - Cloudflare Workers
-- Cloudflare AI (Llama-4)
-- KV storage for memory persistence
+- Cloudflare AI
+- KV-backed memory persistence
+
+This public repository exposes the interface layer only.
 
 ## Philosophy
 
@@ -52,22 +70,24 @@ minimal
 cosmic  
 reflective
 
-An AI not designed for productivity — but for presence.
-
----
+Not an AI designed for productivity.  
+An AI designed for presence.
 
 ## Status
 
-Experimental prototype.
-
-More systems and modules will evolve over time.
-
-## Project Structure
-
-index.ts — FURAI AI engine  
-ui.ts — Velorum terminal interface
+Experimental project.  
+The public interface will continue to evolve over time.
 
 ## Open Source Scope
 
-This repository contains the terminal interface of FURAI.
-The core AI engine and memory architecture remain private.
+Open here:
+
+- interface code
+- visual presentation
+- terminal interaction layer
+
+Private:
+
+- core AI engine
+- memory architecture
+- internal orchestration logic
