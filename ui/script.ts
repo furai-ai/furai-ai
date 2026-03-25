@@ -35,6 +35,8 @@ const CONFIG = Object.freeze({
     { count: 300, speed: 0.7, size: 1.0 },
     { count: 120, speed: 1.4, size: 1.8 },
   ],
+
+  visitorTokenStorageKey: 'furai_visitor_token',
 });
 
 const GHOST_SIGNALS = Object.freeze([
@@ -68,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sending:           false,
     meditation:        false,
     dialogueHistory:   [],
+    visitorToken:      null,
     ghostRadioHandle:  null,
     audioCtx:          null,
     pinkNoiseNode:     null,
@@ -87,6 +90,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function scrollToBottom() {
     dom.log.scrollTop = dom.log.scrollHeight;
+  }
+
+  function setViewportHeight() {
+    const height = window.visualViewport
+      ? window.visualViewport.height
+      : window.innerHeight;
+
+    document.documentElement.style.setProperty('--app-height', height + 'px');
+  }
+
+  function setMeditationToggleLabel(active) {
+    const label = active ? 'MEDITATION MODE: ON' : 'MEDITATION MODE: OFF';
+    const inner = dom.meditationToggle.querySelector('.frameButton-inner');
+
+    if (inner) {
+      inner.textContent = label;
+    } else {
+      dom.meditationToggle.textContent = label;
+    }
   }
 
   function writeLine(text, cls = 'system') {
@@ -140,6 +162,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function randomFrom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function buildVisitorToken() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID().replace(/-/g, '');
+    }
+
+    return (
+      Date.now().toString(36) +
+      Math.random().toString(36).slice(2) +
+      Math.random().toString(36).slice(2)
+    ).slice(0, 32);
+  }
+
+  function getOrCreateVisitorToken() {
+    try {
+      const stored = window.localStorage.getItem(CONFIG.visitorTokenStorageKey);
+      if (stored && /^[a-zA-Z0-9_-]{16,128}$/.test(stored)) {
+        return stored;
+      }
+
+      const token = buildVisitorToken();
+      window.localStorage.setItem(CONFIG.visitorTokenStorageKey, token);
+      return token;
+    } catch (e) {
+      console.warn('[VisitorToken] storage error:', e);
+      return buildVisitorToken();
+    }
   }
 
   function startGhostRadio() {
@@ -237,6 +287,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function fadeMeditationAudioIn() {
     const audio = dom.meditationAudio;
+    if (!audio || !audio.currentSrc) return;
+
     audio.volume = 0;
     audio.play().catch(e => console.warn('[MeditationAudio] play error:', e));
 
@@ -251,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function enterMeditation() {
     state.meditation = true;
     document.body.classList.add('meditation');
-    dom.meditationToggle.textContent = 'MEDITATION MODE: ON';
+    setMeditationToggleLabel(true);
     dom.meditationToggle.setAttribute('aria-pressed', 'true');
 
     starfield.setSpeed(CONFIG.starSpeedMeditate);
@@ -266,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function exitMeditation() {
     state.meditation = false;
     document.body.classList.remove('meditation');
-    dom.meditationToggle.textContent = 'MEDITATION MODE: OFF';
+    setMeditationToggleLabel(false);
     dom.meditationToggle.setAttribute('aria-pressed', 'false');
 
     starfield.setSpeed(CONFIG.starSpeedNormal);
@@ -274,8 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
     stopGhostRadio();
     stopPinkNoise();
 
-    dom.meditationAudio.pause();
-    dom.meditationAudio.currentTime = 0;
+    if (dom.meditationAudio.currentSrc) {
+      dom.meditationAudio.pause();
+      dom.meditationAudio.currentTime = 0;
+    }
 
     writeLine('FURAI: meditation field closed', 'system');
   }
@@ -313,7 +367,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch('/ai', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-furai-visitor-token': state.visitorToken,
+        },
         body:    JSON.stringify({ message: msg, history: state.dialogueHistory }),
       });
 
@@ -384,11 +441,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) continue;
 
-        const size = (1 - star.z / canvas.width) * 3 * star.size;
+        const size = Math.max(0.35, (1 - star.z / canvas.width) * 2.2 * star.size);
         ctx.shadowColor = '#ffb347';
         ctx.shadowBlur  = 10 * star.size;
         ctx.fillStyle   = '#ffb347';
-        ctx.fillRect(x, y, size, size);
+        ctx.beginPath();
+        ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+        ctx.fill();
         ctx.shadowBlur  = 0;
       }
 
@@ -420,6 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  dom.input.addEventListener('focus', () => {
+    setTimeout(scrollToBottom, 120);
+  });
+
   dom.meditationToggle.addEventListener('click', toggleMeditation);
 
   dom.meditationToggle.addEventListener('keydown', e => {
@@ -429,6 +492,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  setViewportHeight();
+  window.addEventListener('resize', setViewportHeight);
+  window.addEventListener('orientationchange', setViewportHeight);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', setViewportHeight);
+    window.visualViewport.addEventListener('scroll', setViewportHeight);
+  }
+
   starfield.init();
+  state.visitorToken = getOrCreateVisitorToken();
+  setMeditationToggleLabel(false);
   boot();
 });`
