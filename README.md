@@ -2,6 +2,14 @@
   <img src="https://raw.githubusercontent.com/furai-ai/furai-ai/main/preview.png" width="900">
 </p>
 
+<p align="center">
+  Public interface layer for the FURAI experience.
+</p>
+
+<p align="center">
+  <a href="https://furai.space"><strong>Live Demo</strong></a>
+</p>
+
 ```text
 ARCHIVE VESSEL: VELORUM
 status: drifting between signals
@@ -19,9 +27,9 @@ FURAI is an atmospheric AI terminal designed as a deep-space archive interface.
 
 It frames interaction as contact with **Velorum**: an ancient autonomous vessel preserving fragments of memory, silence, and lost civilizations.
 
-This repository contains the public terminal interface layer of FURAI.
-
-The private AI engine, memory architecture, and internal orchestration systems are not included here.
+> This repository contains the public terminal interface layer of FURAI.
+>
+> The private AI engine, memory architecture, and internal orchestration systems are not included here.
 
 ## Live Demo
 
@@ -80,13 +88,13 @@ The public interface will continue to evolve over time.
 
 ## Open Source Scope
 
-Open here:
+Open in this repository:
 
 - interface code
 - visual presentation
 - terminal interaction layer
 
-Private:
+Not included here:
 
 - core AI engine
 - memory architecture
