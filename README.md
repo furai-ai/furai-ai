@@ -70,6 +70,16 @@ The full FURAI system runs on:
 
 This public repository exposes the interface layer only.
 
+## Technical Highlights
+
+- Built and deployed a production AI experience on Cloudflare Workers with a custom cinematic terminal interface and responsive mobile behavior.
+- Designed the UI as a modular client system with separate render, styles, and interaction layers, including starfield rendering, meditation mode, and ambient audio control.
+- Implemented durable visitor continuity beyond IP through token-based identity, returning-user recognition, profile memory, and interest persistence.
+- Hardened the first-contact flow with explicit handling for onboarding, name capture, language continuity, cooldown edge cases, malformed input, and fallback recovery.
+- Refactored backend state management into clearer modules and added structured request logging, response normalization, and safer memory persistence patterns.
+- Added regression-focused automated coverage for routing, onboarding, memory behavior, archive-id normalization, AI fallback paths, and error scenarios.
+- Maintained a deliberate public/private architecture by open-sourcing the interface layer while keeping internal AI orchestration and memory systems private.
+
 ## Interface Direction
 
 The current terminal presentation is intentionally tuned toward:
