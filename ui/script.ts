@@ -31,9 +31,9 @@ const CONFIG = Object.freeze({
   starSpeedMeditate:  0.4,
 
   starLayers: [
-    { count: 500, speed: 0.3, size: 0.6 },
-    { count: 300, speed: 0.7, size: 1.0 },
-    { count: 120, speed: 1.4, size: 1.8 },
+    { count: 560, speed: 0.3, size: 0.58 },
+    { count: 340, speed: 0.72, size: 0.98 },
+    { count: 140, speed: 1.45, size: 1.7 },
   ],
 
   visitorTokenStorageKey: 'furai_visitor_token',
@@ -441,10 +441,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) continue;
 
-        const size = Math.max(0.35, (1 - star.z / canvas.width) * 2.2 * star.size);
+        const depth = 1 - star.z / canvas.width;
+        const size = Math.max(0.32, depth * 2.15 * star.size);
+        const alpha = Math.min(1, 0.34 + depth * 0.72);
         ctx.shadowColor = '#ffb347';
-        ctx.shadowBlur  = 10 * star.size;
-        ctx.fillStyle   = '#ffb347';
+        ctx.shadowBlur  = 7 * star.size + depth * 5;
+        ctx.fillStyle   = 'rgba(255, 179, 71, ' + alpha + ')';
         ctx.beginPath();
         ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
         ctx.fill();

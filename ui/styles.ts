@@ -15,7 +15,7 @@ export const uiStyles = `    :root {
       --font-mono:         ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
 
       --header-height:     64px;
-      --terminal-max-w:    980px;
+      --terminal-max-w:    860px;
       --terminal-pad:      18px;
     }
 
@@ -55,10 +55,10 @@ export const uiStyles = `    :root {
       z-index: 1;
       pointer-events: none;
       background:
-        radial-gradient(ellipse 55% 35% at 12% 18%, rgba(180,80,20,0.04) 0%, transparent 65%),
-        radial-gradient(ellipse 45% 55% at 88% 82%, rgba(120,50,10,0.035) 0%, transparent 65%),
-        radial-gradient(ellipse 70% 40% at 65% 30%, rgba(200,120,30,0.025) 0%, transparent 60%),
-        radial-gradient(ellipse 90% 60% at 50% 50%, rgba(8,4,2,0.75) 0%, transparent 100%);
+        radial-gradient(ellipse 55% 35% at 12% 18%, rgba(180,80,20,0.03) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 55% at 88% 82%, rgba(120,50,10,0.028) 0%, transparent 65%),
+        radial-gradient(ellipse 70% 40% at 65% 30%, rgba(200,120,30,0.02) 0%, transparent 60%),
+        radial-gradient(ellipse 90% 60% at 50% 50%, rgba(8,4,2,0.58) 0%, transparent 100%);
     }
 
     .grain {
@@ -66,7 +66,7 @@ export const uiStyles = `    :root {
       inset: 0;
       z-index: 2;
       pointer-events: none;
-      opacity: 0.045;
+      opacity: 0.034;
       mix-blend-mode: overlay;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-repeat: repeat;
@@ -79,8 +79,8 @@ export const uiStyles = `    :root {
       z-index: 1;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(255,179,71,0.009) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,179,71,0.009) 1px, transparent 1px);
+        linear-gradient(rgba(255,179,71,0.006) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,179,71,0.006) 1px, transparent 1px);
       background-size: 80px 80px;
       animation: gridDrift 200s linear infinite;
     }
@@ -92,7 +92,7 @@ export const uiStyles = `    :root {
       right: 0;
       height: 1px;
       z-index: 10;
-      background: linear-gradient(90deg, transparent, rgba(232,168,76,0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(232,168,76,0.12), transparent);
       animation: scanPulse 5s ease-in-out infinite;
       pointer-events: none;
     }
@@ -119,7 +119,7 @@ export const uiStyles = `    :root {
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
       gap: 12px;
-      background: linear-gradient(180deg, rgba(7,5,2,0.84), rgba(7,5,2,0.3));
+      background: linear-gradient(180deg, rgba(7,5,2,0.62), rgba(7,5,2,0.12));
       border-bottom: 1px solid var(--color-border);
       backdrop-filter: blur(8px);
     }
@@ -212,28 +212,28 @@ export const uiStyles = `    :root {
       justify-content: center;
       align-items: stretch;
       min-height: var(--app-height);
-      padding: calc(var(--header-height) + env(safe-area-inset-top) + 18px) 18px calc(16px + env(safe-area-inset-bottom));
+      padding: calc(var(--header-height) + env(safe-area-inset-top) + 24px) 24px calc(24px + env(safe-area-inset-bottom));
     }
 
     #terminalShell {
       position: relative;
       width: min(100%, var(--terminal-max-w));
-      height: calc(var(--app-height) - var(--header-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 34px);
+      height: min(76vh, calc(var(--app-height) - var(--header-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 48px));
       min-height: 0;
       display: flex;
       flex-direction: column;
       gap: 14px;
       padding: var(--terminal-pad);
       background:
-        linear-gradient(180deg, rgba(255, 214, 154, 0.012), rgba(255, 214, 154, 0.003) 22%, rgba(8, 4, 2, 0.012) 48%, rgba(4, 3, 2, 0.018) 100%),
-        linear-gradient(135deg, rgba(255, 223, 170, 0.01), rgba(255, 223, 170, 0.002) 28%, rgba(8, 4, 2, 0.006) 56%, rgba(4, 3, 2, 0.012) 100%);
+        linear-gradient(180deg, rgba(255, 214, 154, 0.004), rgba(255, 214, 154, 0.001) 22%, rgba(8, 4, 2, 0.004) 48%, rgba(4, 3, 2, 0.006) 100%),
+        linear-gradient(135deg, rgba(255, 223, 170, 0.004), rgba(255, 223, 170, 0.001) 28%, rgba(8, 4, 2, 0.003) 56%, rgba(4, 3, 2, 0.006) 100%);
       border: 1px solid var(--color-border);
       box-shadow:
-        0 18px 54px rgba(0, 0, 0, 0.08),
-        0 0 16px rgba(232, 168, 76, 0.02),
-        inset 0 1px 0 rgba(255, 223, 170, 0.04),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.06);
-      backdrop-filter: blur(2px) saturate(108%);
+        0 12px 34px rgba(0, 0, 0, 0.05),
+        0 0 12px rgba(232, 168, 76, 0.015),
+        inset 0 1px 0 rgba(255, 223, 170, 0.02),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+      backdrop-filter: blur(1.25px) saturate(106%);
       overflow: hidden;
     }
 
@@ -247,22 +247,22 @@ export const uiStyles = `    :root {
     #terminalShell::before {
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(255, 233, 196, 0.028), rgba(255, 233, 196, 0.006) 18%, transparent 36%),
-        radial-gradient(circle at 14% 8%, rgba(255, 236, 205, 0.028), transparent 28%),
-        radial-gradient(circle at 82% 0%, rgba(255, 217, 145, 0.02), transparent 26%);
+        linear-gradient(180deg, rgba(255, 233, 196, 0.016), rgba(255, 233, 196, 0.003) 18%, transparent 36%),
+        radial-gradient(circle at 14% 8%, rgba(255, 236, 205, 0.014), transparent 28%),
+        radial-gradient(circle at 82% 0%, rgba(255, 217, 145, 0.01), transparent 26%);
       mix-blend-mode: screen;
-      opacity: 0.42;
+      opacity: 0.28;
       z-index: 0;
     }
 
     #terminalShell::after {
       inset: 14px;
-      border: 1px solid rgba(232, 168, 76, 0.05);
+      border: 1px solid rgba(232, 168, 76, 0.035);
       pointer-events: none;
     }
 
     #terminalShell::after {
-      box-shadow: inset 0 0 0 1px rgba(255, 226, 179, 0.012);
+      box-shadow: inset 0 0 0 1px rgba(255, 226, 179, 0.008);
     }
 
     #terminalShell > * {
@@ -294,7 +294,7 @@ export const uiStyles = `    :root {
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--color-dim);
-      background: rgba(10, 6, 3, 0.36);
+      background: rgba(10, 6, 3, 0.16);
     }
 
     #log {
@@ -302,10 +302,10 @@ export const uiStyles = `    :root {
       min-height: 0;
       overflow-y: auto;
       padding: 18px;
-      border: 1px solid rgba(232, 168, 76, 0.16);
+      border: 1px solid rgba(232, 168, 76, 0.12);
       background:
-        linear-gradient(180deg, rgba(255, 229, 184, 0.006), rgba(255, 229, 184, 0.002) 16%, rgba(1, 2, 8, 0.004) 36%, rgba(1, 2, 8, 0.008) 100%),
-        rgba(1, 2, 8, 0.006);
+        linear-gradient(180deg, rgba(255, 229, 184, 0.002), rgba(255, 229, 184, 0.0008) 16%, rgba(1, 2, 8, 0.0012) 36%, rgba(1, 2, 8, 0.0024) 100%),
+        rgba(1, 2, 8, 0.0016);
       white-space: pre-wrap;
       line-height: 1.72;
       scroll-behavior: smooth;
@@ -314,9 +314,9 @@ export const uiStyles = `    :root {
       font-family: var(--font-mono);
       font-size: 14px;
       box-shadow:
-        inset 0 1px 0 rgba(255, 227, 183, 0.025),
-        inset 0 0 8px rgba(0, 0, 0, 0.02);
-      backdrop-filter: blur(0.75px);
+        inset 0 1px 0 rgba(255, 227, 183, 0.012),
+        inset 0 0 6px rgba(0, 0, 0, 0.01);
+      backdrop-filter: blur(0.35px);
     }
 
     #log::-webkit-scrollbar {
@@ -350,7 +350,7 @@ export const uiStyles = `    :root {
 
     #input {
       min-width: 0;
-      background: rgba(0, 0, 0, 0.32);
+      background: rgba(0, 0, 0, 0.16);
       border: 1px solid var(--color-border-mid);
       color: var(--color-white);
       padding: 14px 16px;
@@ -412,7 +412,43 @@ export const uiStyles = `    :root {
     }
 
     .meditation #terminalShell {
-      opacity: 0.28;
+      opacity: 0.07;
+      border-color: rgba(232, 168, 76, 0.06);
+      box-shadow: none;
+      backdrop-filter: blur(0.2px) saturate(102%);
+    }
+
+    .meditation #header {
+      opacity: 0.16;
+      border-bottom-color: rgba(232, 168, 76, 0.04);
+      backdrop-filter: blur(2px);
+    }
+
+    .meditation #terminalMeta,
+    .meditation #inputDock {
+      opacity: 0.05;
+    }
+
+    .meditation #log {
+      border-color: rgba(232, 168, 76, 0.03);
+      background: rgba(1, 2, 8, 0.0001);
+      box-shadow: none;
+    }
+
+    .meditation .nebula {
+      opacity: 0.85;
+    }
+
+    .meditation .grain {
+      opacity: 0.018;
+    }
+
+    .meditation .grid {
+      opacity: 0.35;
+    }
+
+    .meditation .scanline {
+      opacity: 0.08;
     }
 
     @media (max-width: 820px) {
@@ -441,11 +477,11 @@ export const uiStyles = `    :root {
       #terminalWrap {
         padding-left: 10px;
         padding-right: 10px;
-        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
       }
 
       #terminalShell {
-        height: calc(var(--app-height) - var(--header-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px);
+        height: calc(var(--app-height) - var(--header-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 26px);
       }
 
       #log {
@@ -457,6 +493,10 @@ export const uiStyles = `    :root {
     @media (max-width: 640px) {
       #header {
         grid-template-columns: 1fr auto;
+      }
+
+      #terminalWrap {
+        padding-top: calc(var(--header-height) + env(safe-area-inset-top) + 18px);
       }
 
       .headerSlot:last-child {

@@ -13,7 +13,7 @@
 ```text
 ARCHIVE VESSEL: VELORUM
 status: drifting between signals
-mode: listening
+mode: listening through glass and starlight
 ```
 
 # FURAI AI
@@ -44,12 +44,13 @@ It frames interaction as contact with **Velorum**: an ancient autonomous vessel 
 
 ## Features
 
-- cinematic terminal interface
-- multi-layer warp starfield engine
-- meditation mode with ambient pink-noise reactor
+- cinematic terminal interface with lighter glass framing
+- starfield-first layout with more visible space on desktop and mobile
+- meditation mode that nearly dissolves the UI into stars and ambient pink noise
 - ghost radio transmissions
 - dream fragments and archive signals
-- AI thinking core indicator
+- mobile viewport stabilization for on-screen keyboards
+- visitor-token continuity on the client layer
 - modular UI structure for render, styles, and client behavior
 
 ## Project Structure
@@ -68,6 +69,15 @@ The full FURAI system runs on:
 - KV-backed memory persistence
 
 This public repository exposes the interface layer only.
+
+## Interface Direction
+
+The current terminal presentation is intentionally tuned toward:
+
+- more visible starfield around and through the terminal shell
+- a restrained amber archival aesthetic instead of a heavy opaque console
+- meditation mode as near-solitude with stars, drift, and reactor-noise ambience
+- responsive behavior that still feels like a ship console on mobile
 
 ## Philosophy
 
