@@ -29,7 +29,7 @@ It frames interaction as contact with **Velorum**: an ancient autonomous vessel 
 
 > This repository contains the public terminal interface layer of FURAI.
 >
-> The private AI engine, memory architecture, and internal orchestration systems are not included here.
+> The core AI engine and memory orchestration are part of the private system and not included in this repository.
 
 ## Live Demo
 
