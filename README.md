@@ -47,6 +47,7 @@ It frames interaction as contact with **Velorum**: an ancient autonomous vessel 
 - cinematic terminal interface with lighter glass framing
 - starfield-first layout with more visible space on desktop and mobile
 - meditation mode that nearly dissolves the UI into stars and ambient pink noise
+- modern browser-safe meditation audio path using AudioWorklet with graceful fallback
 - ghost radio transmissions
 - dream fragments and archive signals
 - mobile viewport stabilization for on-screen keyboards

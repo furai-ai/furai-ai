@@ -64,6 +64,45 @@ const BOOT_SEQUENCE = Object.freeze([
   'connection established',
 ]);
 
+const PINK_NOISE_WORKLET_SOURCE = [
+  'class FuraiPinkNoiseProcessor extends AudioWorkletProcessor {',
+  '  constructor() {',
+  '    super();',
+  '    this.b0 = 0;',
+  '    this.b1 = 0;',
+  '    this.b2 = 0;',
+  '    this.b3 = 0;',
+  '    this.b4 = 0;',
+  '    this.b5 = 0;',
+  '    this.b6 = 0;',
+  '  }',
+  '',
+  '  process(inputs, outputs) {',
+  '    const output = outputs[0];',
+  '    if (!output) return true;',
+  '',
+  '    for (const channel of output) {',
+  '      for (let i = 0; i < channel.length; i++) {',
+  '        const w = Math.random() * 2 - 1;',
+  '        this.b0 = 0.99886 * this.b0 + w * 0.0555179;',
+  '        this.b1 = 0.99332 * this.b1 + w * 0.0750759;',
+  '        this.b2 = 0.96900 * this.b2 + w * 0.1538520;',
+  '        this.b3 = 0.86650 * this.b3 + w * 0.3104856;',
+  '        this.b4 = 0.55000 * this.b4 + w * 0.5329522;',
+  '        this.b5 = -0.7616  * this.b5 - w * 0.0168980;',
+  '        const pink = this.b0 + this.b1 + this.b2 + this.b3 + this.b4 + this.b5 + this.b6 + w * 0.5362;',
+  '        this.b6 = w * 0.115926;',
+  '        channel[i] = pink * 0.08;',
+  '      }',
+  '    }',
+  '',
+  '    return true;',
+  '  }',
+  '}',
+  '',
+  'registerProcessor("furai-pink-noise", FuraiPinkNoiseProcessor);',
+].join('\\n');
+
 document.addEventListener('DOMContentLoaded', () => {
   const state = {
     furaiTyping:       false,
@@ -231,12 +270,65 @@ document.addEventListener('DOMContentLoaded', () => {
     return node;
   }
 
-  function startPinkNoise() {
+  async function createPinkNoiseNode(ctx) {
+    if (ctx.audioWorklet && typeof AudioWorkletNode === 'function') {
+      const workletUrl = URL.createObjectURL(
+        new Blob([PINK_NOISE_WORKLET_SOURCE], { type: 'application/javascript' })
+      );
+
+      try {
+        await ctx.audioWorklet.addModule(workletUrl);
+      } finally {
+        URL.revokeObjectURL(workletUrl);
+      }
+
+      const node = new AudioWorkletNode(ctx, 'furai-pink-noise', {
+        numberOfInputs: 0,
+        numberOfOutputs: 1,
+        outputChannelCount: [1],
+      });
+
+      node.addEventListener('processorerror', e => {
+        console.warn('[PinkNoise] processor error:', e);
+      });
+
+      return node;
+    }
+
+    return createPinkNoiseProcessor(ctx);
+  }
+
+  async function startPinkNoise() {
     if (state.audioCtx) return;
 
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    state.audioCtx      = ctx;
-    state.pinkNoiseNode = createPinkNoiseProcessor(ctx);
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) {
+      console.warn('[PinkNoise] AudioContext is not available in this browser.');
+      return;
+    }
+
+    const ctx = new AudioContextCtor();
+    state.audioCtx = ctx;
+
+    try {
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+
+      state.pinkNoiseNode = await createPinkNoiseNode(ctx);
+    } catch (e) {
+      console.warn('[PinkNoise] init error:', e);
+
+      try {
+        await ctx.close();
+      } catch (closeError) {
+        console.warn('[PinkNoise] close error:', closeError);
+      }
+
+      state.audioCtx = null;
+      state.pinkNoiseNode = null;
+      return;
+    }
 
     const gain = ctx.createGain();
     gain.gain.value = CONFIG.audioInitGain;
