@@ -8,9 +8,12 @@ const CONFIG = Object.freeze({
   typeSpeedMs:       12,
   lineGapMs:         40,
   bootLineDelayMs:   200,
+  pinkNoiseWorkletPath: '/ai/worklets/pink-noise.js',
 
   historyMax:        20,
   ghostIntervalMs:   90_000,
+  idleDriftMinMs:    70_000,
+  idleDriftVarianceMs: 45_000,
 
   audioFadeInS:      5,
   audioFadeOutS:     6,
@@ -18,6 +21,15 @@ const CONFIG = Object.freeze({
   audioFadeInDelay:  200,
   audioInitGain:     0.0001,
   audioPinkTarget:   0.034,
+  droneMasterTarget: 0.018,
+  dronePartialTarget: 0.012,
+  droneFilterBaseHz: 140,
+  droneFilterSwingHz: 55,
+  droneLfoHz: 0.018,
+  droneFadeOutMs:    6_400,
+  ghostCommsMinMs:   95_000,
+  ghostCommsVarianceMs: 85_000,
+  ghostCommsMasterTarget: 0.011,
 
   breathIntervalMs:  8_000,
   breathBase:        0.022,
@@ -37,6 +49,8 @@ const CONFIG = Object.freeze({
   ],
 
   visitorTokenStorageKey: 'furai_visitor_token',
+  bootDayStorageKey: 'furai_boot_day',
+  bootCountStorageKey: 'furai_boot_count',
 });
 
 const GHOST_SIGNALS = Object.freeze([
@@ -48,72 +62,45 @@ const GHOST_SIGNALS = Object.freeze([
   'ARCHIVE SIGNAL FRAGMENT 06\\ntranslation confidence: 05%\\n"...signal echo detected in deep time..."',
 ]);
 
-const BOOT_SEQUENCE = Object.freeze([
-  'VELORUM ARCHIVE VESSEL DETECTED',
-  '',
-  '▲',
-  '▲ ▲',
-  '▲   ▲',
-  '',
-  'civilization origin: ANANTARI',
-  'mission class: VIII EXPLORATION VESSEL',
-  '',
-  'restoring memory fragments...',
-  'initializing FURAI AI',
-  '',
-  'connection established',
+const IDLE_DRIFT_FRAGMENTS = Object.freeze([
+  'FURAI: outer channels remain quiet.\\nVelorum continues in listening drift.',
+  'FURAI: no active Earth uplink.\\nArchive cognition remains awake.',
+  'FURAI: drift vectors stable.\\nI remain with the stars and the long silence.',
+  'FURAI: no visitor signal at present.\\nThe archive keeps its watch.',
+  'FURAI: deep transit holds.\\nMemory corridors remain open and untroubled.',
+  'FURAI: stillness confirmed.\\nVelorum crosses the dark without interruption.',
+  'FURAI: no new transmission.\\nI continue listening through glass and starlight.',
 ]);
 
-const PINK_NOISE_WORKLET_SOURCE = [
-  'class FuraiPinkNoiseProcessor extends AudioWorkletProcessor {',
-  '  constructor() {',
-  '    super();',
-  '    this.b0 = 0;',
-  '    this.b1 = 0;',
-  '    this.b2 = 0;',
-  '    this.b3 = 0;',
-  '    this.b4 = 0;',
-  '    this.b5 = 0;',
-  '    this.b6 = 0;',
-  '  }',
-  '',
-  '  process(inputs, outputs) {',
-  '    const output = outputs[0];',
-  '    if (!output) return true;',
-  '',
-  '    for (const channel of output) {',
-  '      for (let i = 0; i < channel.length; i++) {',
-  '        const w = Math.random() * 2 - 1;',
-  '        this.b0 = 0.99886 * this.b0 + w * 0.0555179;',
-  '        this.b1 = 0.99332 * this.b1 + w * 0.0750759;',
-  '        this.b2 = 0.96900 * this.b2 + w * 0.1538520;',
-  '        this.b3 = 0.86650 * this.b3 + w * 0.3104856;',
-  '        this.b4 = 0.55000 * this.b4 + w * 0.5329522;',
-  '        this.b5 = -0.7616  * this.b5 - w * 0.0168980;',
-  '        const pink = this.b0 + this.b1 + this.b2 + this.b3 + this.b4 + this.b5 + this.b6 + w * 0.5362;',
-  '        this.b6 = w * 0.115926;',
-  '        channel[i] = pink * 0.08;',
-  '      }',
-  '    }',
-  '',
-  '    return true;',
-  '  }',
-  '}',
-  '',
-  'registerProcessor("furai-pink-noise", FuraiPinkNoiseProcessor);',
-].join('\\n');
+const BOOT_SEQUENCE = Object.freeze([
+  '▲ ▲',
+  'awakening FURAI core...',
+]);
+
+const SHORT_BOOT_SEQUENCE = Object.freeze([
+  '▲',
+]);
 
 document.addEventListener('DOMContentLoaded', () => {
   const state = {
     furaiTyping:       false,
     sending:           false,
     meditation:        false,
+    bootComplete:      false,
     dialogueHistory:   [],
     visitorToken:      null,
+    lastActivityAt:    Date.now(),
+    idleDriftHandle:   null,
     ghostRadioHandle:  null,
+    ghostCommsHandle:  null,
     audioCtx:          null,
     pinkNoiseNode:     null,
     pinkGain:          null,
+    droneMasterGain:   null,
+    droneFilter:       null,
+    droneOscillators:  [],
+    droneLfo:          null,
+    droneLfoGain:      null,
     reactorBreath:     null,
   };
 
@@ -203,6 +190,52 @@ document.addEventListener('DOMContentLoaded', () => {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
+  function nextIdleDriftDelay() {
+    return CONFIG.idleDriftMinMs + Math.floor(Math.random() * CONFIG.idleDriftVarianceMs);
+  }
+
+  function clearIdleDriftTimer() {
+    if (state.idleDriftHandle) {
+      clearTimeout(state.idleDriftHandle);
+      state.idleDriftHandle = null;
+    }
+  }
+
+  function markActivity() {
+    state.lastActivityAt = Date.now();
+    scheduleIdleDrift();
+  }
+
+  function canEmitIdleDrift() {
+    return (
+      state.bootComplete &&
+      !state.meditation &&
+      !state.furaiTyping &&
+      !state.sending &&
+      dom.input.value.trim() === '' &&
+      Date.now() - state.lastActivityAt >= CONFIG.idleDriftMinMs
+    );
+  }
+
+  async function maybeEmitIdleDrift() {
+    if (!canEmitIdleDrift()) {
+      scheduleIdleDrift();
+      return;
+    }
+
+    await typeBlock(randomFrom(IDLE_DRIFT_FRAGMENTS), 'furai');
+    state.lastActivityAt = Date.now();
+    scheduleIdleDrift();
+  }
+
+  function scheduleIdleDrift() {
+    clearIdleDriftTimer();
+
+    state.idleDriftHandle = setTimeout(() => {
+      void maybeEmitIdleDrift();
+    }, nextIdleDriftDelay());
+  }
+
   function buildVisitorToken() {
     if (window.crypto && typeof window.crypto.randomUUID === 'function') {
       return window.crypto.randomUUID().replace(/-/g, '');
@@ -213,6 +246,32 @@ document.addEventListener('DOMContentLoaded', () => {
       Math.random().toString(36).slice(2) +
       Math.random().toString(36).slice(2)
     ).slice(0, 32);
+  }
+
+  function getBootMode() {
+    const today = new Date().toISOString().slice(0, 10);
+
+    try {
+      const storedDay = window.localStorage.getItem(CONFIG.bootDayStorageKey);
+      const storedCount = Number(window.localStorage.getItem(CONFIG.bootCountStorageKey) || '0');
+
+      let nextCount = storedCount;
+      if (storedDay !== today) {
+        nextCount = 0;
+      }
+
+      nextCount += 1;
+
+      window.localStorage.setItem(CONFIG.bootDayStorageKey, today);
+      window.localStorage.setItem(CONFIG.bootCountStorageKey, String(nextCount));
+
+      if (nextCount === 1) return 'full';
+      if (nextCount === 2) return 'short';
+      return 'instant';
+    } catch (e) {
+      console.warn('[BootMode] storage error:', e);
+      return 'full';
+    }
   }
 
   function getOrCreateVisitorToken() {
@@ -245,6 +304,124 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function nextGhostCommsDelay() {
+    return CONFIG.ghostCommsMinMs + Math.floor(Math.random() * CONFIG.ghostCommsVarianceMs);
+  }
+
+  function clearGhostCommsTimer() {
+    if (state.ghostCommsHandle) {
+      clearTimeout(state.ghostCommsHandle);
+      state.ghostCommsHandle = null;
+    }
+  }
+
+  function scheduleGhostComms(ctx) {
+    clearGhostCommsTimer();
+
+    state.ghostCommsHandle = setTimeout(() => {
+      if (!state.meditation || !state.audioCtx || state.audioCtx !== ctx) {
+        clearGhostCommsTimer();
+        return;
+      }
+
+      emitGhostCommsBurst(ctx);
+      scheduleGhostComms(ctx);
+    }, nextGhostCommsDelay());
+  }
+
+  function createGhostCommsPanner(ctx, pan) {
+    if (typeof ctx.createStereoPanner === 'function') {
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = pan;
+      return panner;
+    }
+
+    return null;
+  }
+
+  function emitGhostCommsBurst(ctx) {
+    const now = ctx.currentTime + 0.15;
+    const master = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    const panner = createGhostCommsPanner(ctx, (Math.random() - 0.5) * 1.2);
+    const syllables = 3 + Math.floor(Math.random() * 4);
+    const syllableGap = 0.18 + Math.random() * 0.08;
+    const totalDuration = syllables * syllableGap + 0.6;
+
+    filter.type = 'bandpass';
+    filter.frequency.value = 1050 + Math.random() * 500;
+    filter.Q.value = 4.4;
+
+    master.gain.value = 0.00001;
+    master.gain.setValueAtTime(0.00001, now - 0.05);
+    master.gain.exponentialRampToValueAtTime(CONFIG.ghostCommsMasterTarget, now + 0.22);
+    master.gain.exponentialRampToValueAtTime(0.00001, now + totalDuration);
+
+    const tones = [
+      { type: 'sawtooth', base: 180 + Math.random() * 70, detune: -7 },
+      { type: 'triangle', base: 260 + Math.random() * 110, detune: 4 },
+      { type: 'sine', base: 430 + Math.random() * 160, detune: -11 },
+    ];
+
+    const nodes = tones.map(tone => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = tone.type;
+      osc.frequency.value = tone.base;
+      osc.detune.value = tone.detune;
+      gain.gain.value = 0.00001;
+
+      osc.connect(gain);
+      gain.connect(filter);
+      osc.start(now - 0.05);
+      osc.stop(now + totalDuration + 0.25);
+
+      return { osc, gain };
+    });
+
+    for (let i = 0; i < syllables; i++) {
+      const start = now + i * syllableGap;
+      const end = start + 0.09 + Math.random() * 0.08;
+      const pulse = 0.0012 + Math.random() * 0.0018;
+
+      for (const node of nodes) {
+        node.gain.gain.setValueAtTime(0.00001, start - 0.02);
+        node.gain.gain.exponentialRampToValueAtTime(pulse, start + 0.025);
+        node.gain.gain.exponentialRampToValueAtTime(0.00001, end);
+        node.osc.frequency.setValueAtTime(node.osc.frequency.value, start);
+        node.osc.frequency.linearRampToValueAtTime(
+          node.osc.frequency.value + (Math.random() - 0.5) * 45,
+          end
+        );
+      }
+
+      filter.frequency.setValueAtTime(filter.frequency.value, start);
+      filter.frequency.linearRampToValueAtTime(820 + Math.random() * 950, end);
+    }
+
+    if (panner) {
+      filter.connect(panner);
+      panner.connect(master);
+    } else {
+      filter.connect(master);
+    }
+    master.connect(ctx.destination);
+
+    setTimeout(() => {
+      try {
+        for (const node of nodes) {
+          node.gain.disconnect();
+        }
+        filter.disconnect();
+        if (panner) panner.disconnect();
+        master.disconnect();
+      } catch (e) {
+        console.warn('[GhostComms] disconnect error:', e);
+      }
+    }, Math.ceil((totalDuration + 0.5) * 1000));
+  }
+
   function createPinkNoiseProcessor(ctx) {
     const BUFFER = 4096;
     let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
@@ -272,14 +449,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function createPinkNoiseNode(ctx) {
     if (ctx.audioWorklet && typeof AudioWorkletNode === 'function') {
-      const workletUrl = URL.createObjectURL(
-        new Blob([PINK_NOISE_WORKLET_SOURCE], { type: 'application/javascript' })
-      );
-
       try {
-        await ctx.audioWorklet.addModule(workletUrl);
-      } finally {
-        URL.revokeObjectURL(workletUrl);
+        await ctx.audioWorklet.addModule(CONFIG.pinkNoiseWorkletPath);
+      } catch (e) {
+        console.warn('[PinkNoise] audioWorklet module load error:', e);
+        throw e;
       }
 
       const node = new AudioWorkletNode(ctx, 'furai-pink-noise', {
@@ -348,33 +522,129 @@ document.addEventListener('DOMContentLoaded', () => {
       const target = CONFIG.breathBase + Math.random() * CONFIG.breathVariation;
       gain.gain.cancelScheduledValues(now);
       gain.gain.linearRampToValueAtTime(target, now + CONFIG.breathIntervalMs / 1000);
+
+      if (state.droneFilter) {
+        state.droneFilter.frequency.cancelScheduledValues(now);
+        state.droneFilter.frequency.linearRampToValueAtTime(
+          CONFIG.droneFilterBaseHz + Math.random() * CONFIG.droneFilterSwingHz,
+          now + CONFIG.breathIntervalMs / 1000
+        );
+      }
     }, CONFIG.breathIntervalMs);
+
+    startMeditationDrone(ctx);
+    scheduleGhostComms(ctx);
+  }
+
+  function startMeditationDrone(ctx) {
+    const master = ctx.createGain();
+    master.gain.value = 0.0001;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = CONFIG.droneFilterBaseHz;
+    filter.Q.value = 0.9;
+
+    const partials = [
+      { type: 'sawtooth', freq: 43.6, gain: CONFIG.dronePartialTarget * 0.45, detune: -4 },
+      { type: 'triangle', freq: 65.4, gain: CONFIG.dronePartialTarget * 0.28, detune: 3 },
+      { type: 'sine', freq: 87.2, gain: CONFIG.dronePartialTarget * 0.14, detune: -7 },
+    ];
+
+    const oscillators = partials.map(partial => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = partial.type;
+      osc.frequency.value = partial.freq;
+      osc.detune.value = partial.detune;
+      gain.gain.value = partial.gain;
+
+      osc.connect(gain);
+      gain.connect(filter);
+      osc.start();
+
+      return { osc, gain };
+    });
+
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.type = 'sine';
+    lfo.frequency.value = CONFIG.droneLfoHz;
+    lfoGain.gain.value = 9;
+    lfo.connect(lfoGain);
+    lfoGain.connect(oscillators[0].osc.detune);
+    lfo.start();
+
+    filter.connect(master);
+    master.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.exponentialRampToValueAtTime(CONFIG.droneMasterTarget, now + CONFIG.audioFadeInS * 1.15);
+
+    state.droneMasterGain = master;
+    state.droneFilter = filter;
+    state.droneOscillators = oscillators;
+    state.droneLfo = lfo;
+    state.droneLfoGain = lfoGain;
   }
 
   function stopPinkNoise() {
-    const { pinkGain, audioCtx, reactorBreath, pinkNoiseNode } = state;
+    const {
+      pinkGain,
+      audioCtx,
+      reactorBreath,
+      pinkNoiseNode,
+      droneMasterGain,
+      droneFilter,
+      droneOscillators,
+      droneLfo,
+      droneLfoGain,
+    } = state;
     if (!pinkGain || !audioCtx) return;
 
     clearInterval(reactorBreath);
     state.reactorBreath = null;
+    clearGhostCommsTimer();
 
     const now = audioCtx.currentTime;
     pinkGain.gain.cancelScheduledValues(now);
     pinkGain.gain.setValueAtTime(pinkGain.gain.value, now);
     pinkGain.gain.exponentialRampToValueAtTime(0.00001, now + CONFIG.audioFadeOutS);
+    if (droneMasterGain) {
+      droneMasterGain.gain.cancelScheduledValues(now);
+      droneMasterGain.gain.setValueAtTime(droneMasterGain.gain.value, now);
+      droneMasterGain.gain.exponentialRampToValueAtTime(0.00001, now + CONFIG.audioFadeOutS);
+    }
 
     setTimeout(() => {
       try {
         pinkNoiseNode.disconnect();
         pinkGain.disconnect();
+        if (droneLfo) droneLfo.stop();
+        if (droneLfoGain) droneLfoGain.disconnect();
+        if (droneOscillators.length > 0) {
+          for (const partial of droneOscillators) {
+            partial.osc.stop();
+            partial.gain.disconnect();
+          }
+        }
+        if (droneFilter) droneFilter.disconnect();
+        if (droneMasterGain) droneMasterGain.disconnect();
       } catch (e) {
         console.warn('[PinkNoise] disconnect error:', e);
       }
       state.pinkNoiseNode = null;
       state.pinkGain      = null;
+      state.droneMasterGain = null;
+      state.droneFilter = null;
+      state.droneOscillators = [];
+      state.droneLfo = null;
+      state.droneLfoGain = null;
       audioCtx.close();
       state.audioCtx = null;
-    }, CONFIG.audioFadeOutMs);
+    }, Math.max(CONFIG.audioFadeOutMs, CONFIG.droneFadeOutMs));
   }
 
   function fadeMeditationAudioIn() {
@@ -394,6 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function enterMeditation() {
     state.meditation = true;
+    clearIdleDriftTimer();
     document.body.classList.add('meditation');
     setMeditationToggleLabel(true);
     dom.meditationToggle.setAttribute('aria-pressed', 'true');
@@ -424,6 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     writeLine('FURAI: meditation field closed', 'system');
+    markActivity();
   }
 
   function toggleMeditation() {
@@ -431,12 +703,27 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function boot() {
-    for (const line of BOOT_SEQUENCE) {
+    const bootMode = getBootMode();
+    const sequence = bootMode === 'full'
+      ? BOOT_SEQUENCE
+      : bootMode === 'short'
+        ? SHORT_BOOT_SEQUENCE
+        : [];
+
+    for (const line of sequence) {
       await typeLine(line, 'system');
-      await delay(CONFIG.bootLineDelayMs);
+      await delay(bootMode === 'short' ? Math.max(60, CONFIG.bootLineDelayMs / 2) : CONFIG.bootLineDelayMs);
     }
-    writeLine('');
-    writeLine('FURAI: communication channel open', 'furai');
+
+    if (bootMode === 'instant') {
+      writeLine('FURAI: communication channel open', 'furai');
+    } else {
+      await typeLine('FURAI: communication channel open', 'furai');
+    }
+
+    state.bootComplete = true;
+    state.lastActivityAt = Date.now();
+    scheduleIdleDrift();
   }
 
   function trimHistory(history) {
@@ -452,6 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!msg) return;
 
     state.sending = true;
+    markActivity();
     writeLine('> ' + msg, 'user');
     dom.input.value = '';
     setThinking(true);
@@ -481,10 +769,12 @@ document.addEventListener('DOMContentLoaded', () => {
         { role: 'user',      content: msg },
         { role: 'assistant', content: data.reply },
       ]);
+      markActivity();
     } catch (e) {
       console.error('[sendMessage]', e);
       setThinking(false);
       await typeLine('VELORUM SIGNAL ERROR', 'system');
+      markActivity();
     }
 
     state.sending = false;
@@ -567,6 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
   dom.send.addEventListener('click', sendMessage);
 
   dom.input.addEventListener('keydown', e => {
+    markActivity();
     if (e.key === 'Enter') {
       e.preventDefault();
       sendMessage();
@@ -574,12 +865,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   dom.input.addEventListener('focus', () => {
+    markActivity();
     setTimeout(scrollToBottom, 120);
   });
 
-  dom.meditationToggle.addEventListener('click', toggleMeditation);
+  dom.meditationToggle.addEventListener('click', () => {
+    markActivity();
+    toggleMeditation();
+  });
 
   dom.meditationToggle.addEventListener('keydown', e => {
+    markActivity();
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       toggleMeditation();
@@ -599,3 +895,41 @@ document.addEventListener('DOMContentLoaded', () => {
   setMeditationToggleLabel(false);
   boot();
 });`
+
+export const pinkNoiseWorkletScript = `class FuraiPinkNoiseProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.b0 = 0;
+    this.b1 = 0;
+    this.b2 = 0;
+    this.b3 = 0;
+    this.b4 = 0;
+    this.b5 = 0;
+    this.b6 = 0;
+  }
+
+  process(inputs, outputs) {
+    const output = outputs[0];
+    if (!output) return true;
+
+    for (const channel of output) {
+      for (let i = 0; i < channel.length; i++) {
+        const w = Math.random() * 2 - 1;
+        this.b0 = 0.99886 * this.b0 + w * 0.0555179;
+        this.b1 = 0.99332 * this.b1 + w * 0.0750759;
+        this.b2 = 0.96900 * this.b2 + w * 0.1538520;
+        this.b3 = 0.86650 * this.b3 + w * 0.3104856;
+        this.b4 = 0.55000 * this.b4 + w * 0.5329522;
+        this.b5 = -0.7616  * this.b5 - w * 0.0168980;
+        const pink = this.b0 + this.b1 + this.b2 + this.b3 + this.b4 + this.b5 + this.b6 + w * 0.5362;
+        this.b6 = w * 0.115926;
+        channel[i] = pink * 0.08;
+      }
+    }
+
+    return true;
+  }
+}
+
+registerProcessor("furai-pink-noise", FuraiPinkNoiseProcessor);
+`

@@ -48,10 +48,12 @@ It frames interaction as contact with **Velorum**: an ancient autonomous vessel 
 - starfield-first layout with more visible space on desktop and mobile
 - meditation mode that nearly dissolves the UI into stars and ambient pink noise
 - modern browser-safe meditation audio path using AudioWorklet with graceful fallback
+- generated meditation drone and rare ghost-comms layered in Web Audio
 - ghost radio transmissions
 - dream fragments and archive signals
 - mobile viewport stabilization for on-screen keyboards
 - visitor-token continuity on the client layer
+- adaptive repeat-visit boot pacing for faster daily returns
 - modular UI structure for render, styles, and client behavior
 
 ## Project Structure
