@@ -27,6 +27,10 @@ FURAI is an atmospheric AI terminal designed as a deep-space archive interface.
 
 It frames interaction as contact with **Velorum**: an ancient autonomous vessel preserving fragments of memory, silence, and lost civilizations.
 
+The current public build leans into an amber archival terminal aesthetic:
+reactive memory visuals, brief portrait flashes, slow background drift,
+and a UI that feels more like a remembered ship-console than a chat app.
+
 > This repository contains the public terminal interface layer of FURAI.
 >
 > The core AI engine and memory orchestration are part of the private system and not included in this repository.
@@ -49,6 +53,8 @@ It frames interaction as contact with **Velorum**: an ancient autonomous vessel 
 - ambient archive-art layer that can drift behind the terminal during lore-heavy exchanges
 - archive photo / vision card support with short-lived memory windows and countdown timing
 - amber-toned official portrait treatment for archival character reveals
+- lore-reactive visual moments instead of constant image generation spam
+- canonical archive portraits for key figures such as Captain Rithan and Chief Engineer Viikaa
 - meditation mode that nearly dissolves the UI into stars and ambient pink noise
 - modern browser-safe meditation audio path using AudioWorklet with graceful fallback
 - generated meditation drone and rare ghost-comms layered in Web Audio
@@ -76,10 +82,20 @@ The full FURAI system runs on:
 
 This public repository exposes the interface layer only.
 
+## Current Public Direction
+
+- a restrained amber terminal language instead of glossy sci-fi chrome
+- short-lived "ship memory" reveals that appear, linger, and fade
+- lore-sensitive visuals that surface on strong narrative beats
+- stable canonical character presentation layered over atmospheric generation
+- a terminal that still reads cleanly on mobile without losing mood
+
 ## Technical Highlights
 
 - Built and deployed a production AI experience on Cloudflare Workers with a custom cinematic terminal interface and responsive mobile behavior.
 - Designed the UI as a modular client system with separate render, styles, and interaction layers, including starfield rendering, meditation mode, and ambient audio control.
+- Added visual-memory presentation layers for ambient archive art, short portrait windows, and countdown-based archival flashes.
+- Tuned the interface to support canonical portraits and lore-aware visual reveals without collapsing into always-on image noise.
 - Implemented durable visitor continuity beyond IP through token-based identity, returning-user recognition, profile memory, and interest persistence.
 - Hardened the first-contact flow with explicit handling for onboarding, name capture, language continuity, cooldown edge cases, malformed input, and fallback recovery.
 - Refactored backend state management into clearer modules and added structured request logging, response normalization, and safer memory persistence patterns.
