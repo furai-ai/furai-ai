@@ -102,6 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
     droneLfo:          null,
     droneLfoGain:      null,
     reactorBreath:     null,
+    ambientHideHandle: null,
+    ambientClearHandle: null,
+    sceneHideHandle:   null,
+    sceneClearHandle:  null,
+    sceneCountdownHandle: null,
   };
 
   const dom = {
@@ -112,6 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
     meditationToggle: document.getElementById('meditationToggle'),
     meditationAudio:  document.getElementById('meditationAudio'),
     canvas:           document.getElementById('stars'),
+    ambientVisual:    document.getElementById('ambientVisual'),
+    ambientVisualImage: document.getElementById('ambientVisualImage'),
+    sceneVisual:      document.getElementById('sceneVisual'),
+    sceneVisualImage: document.getElementById('sceneVisualImage'),
+    sceneVisualLabel: document.getElementById('sceneVisualLabel'),
+    sceneVisualCaption: document.getElementById('sceneVisualCaption'),
+    sceneVisualTimer: document.getElementById('sceneVisualTimer'),
   };
 
   function scrollToBottom() {
@@ -188,6 +200,134 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function randomFrom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function clearTimeoutHandle(key) {
+    if (state[key]) {
+      clearTimeout(state[key]);
+      state[key] = null;
+    }
+  }
+
+  function presentAmbientVisual(scene, totalMs) {
+    if (!scene || !scene.image_data_url) return;
+
+    clearTimeoutHandle('ambientHideHandle');
+    clearTimeoutHandle('ambientClearHandle');
+
+    dom.ambientVisualImage.src = scene.image_data_url;
+    dom.ambientVisual.classList.add('is-active');
+
+    const fadeOutLeadMs = Math.max(2200, scene.timing?.fade_out_ms || 2200);
+    const visibleMs = Math.max(fadeOutLeadMs + 1000, totalMs);
+
+    state.ambientHideHandle = setTimeout(() => {
+      dom.ambientVisual.classList.remove('is-active');
+      state.ambientClearHandle = setTimeout(() => {
+        dom.ambientVisualImage.removeAttribute('src');
+        state.ambientClearHandle = null;
+      }, fadeOutLeadMs);
+      state.ambientHideHandle = null;
+    }, Math.max(1600, visibleMs - fadeOutLeadMs));
+  }
+
+  function clearAmbientVisual() {
+    clearTimeoutHandle('ambientHideHandle');
+    clearTimeoutHandle('ambientClearHandle');
+    dom.ambientVisual.classList.remove('is-active');
+    dom.ambientVisualImage.removeAttribute('src');
+  }
+
+  function stopSceneCountdown() {
+    if (state.sceneCountdownHandle) {
+      clearInterval(state.sceneCountdownHandle);
+      state.sceneCountdownHandle = null;
+    }
+
+    dom.sceneVisualTimer.textContent = '';
+    dom.sceneVisualTimer.hidden = true;
+  }
+
+  function startSceneCountdown(totalMs, seconds) {
+    stopSceneCountdown();
+    if (!seconds || seconds <= 0) return;
+
+    const endAt = Date.now() + Math.max(1000, totalMs);
+
+    const render = () => {
+      const remaining = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+      dom.sceneVisualTimer.textContent = 'MEMORY WINDOW // ' + remaining + 'S';
+      dom.sceneVisualTimer.hidden = false;
+    };
+
+    render();
+    state.sceneCountdownHandle = setInterval(render, 250);
+  }
+
+  function clearSceneVisual() {
+    clearTimeoutHandle('sceneHideHandle');
+    clearTimeoutHandle('sceneClearHandle');
+    stopSceneCountdown();
+    dom.sceneVisual.classList.remove('is-active');
+    dom.sceneVisual.dataset.assetKind = '';
+    dom.sceneVisualImage.removeAttribute('src');
+    dom.sceneVisualCaption.textContent = '';
+    dom.sceneVisualLabel.textContent = 'ARCHIVE VISION // MATERIALIZING';
+  }
+
+  function presentSceneCard(scene) {
+    if (!scene || !scene.image_data_url) return;
+
+    clearTimeoutHandle('sceneHideHandle');
+    clearTimeoutHandle('sceneClearHandle');
+
+    dom.sceneVisualImage.src = scene.image_data_url;
+    dom.sceneVisual.dataset.assetKind = scene.asset_kind || 'generated';
+    dom.sceneVisualCaption.textContent = scene.caption || '';
+    dom.sceneVisualLabel.textContent = scene.asset_kind === 'official_portrait'
+      ? 'ARCHIVE PHOTO // ' + String(scene.topic || 'MATERIALIZING').toUpperCase()
+      : 'ARCHIVE VISION // ' + String(scene.topic || 'MATERIALIZING').toUpperCase();
+    dom.sceneVisual.classList.add('is-active');
+
+    const fadeOutLeadMs = Math.max(900, scene.timing?.fade_out_ms || 900);
+    const totalMs = Math.max(fadeOutLeadMs + 1200, scene.timing?.total_ms || 24_000);
+    startSceneCountdown(totalMs, scene.countdown_seconds || 0);
+
+    state.sceneHideHandle = setTimeout(() => {
+      dom.sceneVisual.classList.remove('is-active');
+      state.sceneClearHandle = setTimeout(() => {
+        dom.sceneVisual.dataset.assetKind = '';
+        dom.sceneVisualImage.removeAttribute('src');
+        dom.sceneVisualCaption.textContent = '';
+        dom.sceneVisualLabel.textContent = 'ARCHIVE VISION // MATERIALIZING';
+        stopSceneCountdown();
+        state.sceneClearHandle = null;
+      }, fadeOutLeadMs);
+      state.sceneHideHandle = null;
+    }, Math.max(1200, totalMs - fadeOutLeadMs));
+  }
+
+  function applyVisualScene(scene) {
+    if (!scene || !scene.image_data_url) return;
+
+    if (scene.asset_kind === 'official_portrait') {
+      clearAmbientVisual();
+      presentSceneCard(scene);
+      return;
+    }
+
+    const ambientDuration = scene.mode === 'scene'
+      ? Math.max(65_000, scene.timing?.total_ms || 0)
+      : Math.max(12_000, scene.timing?.total_ms || 0);
+
+    presentAmbientVisual(scene, ambientDuration);
+
+    if (scene.mode === 'scene') {
+      presentSceneCard(scene);
+      return;
+    }
+
+    clearSceneVisual();
   }
 
   function nextIdleDriftDelay() {
@@ -763,6 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       setThinking(false);
       await typeBlock('FURAI: ' + data.reply, 'furai');
+      applyVisualScene(data.visualScene);
 
       state.dialogueHistory = trimHistory([
         ...state.dialogueHistory,

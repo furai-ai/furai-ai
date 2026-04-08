@@ -1,1 +1,1 @@
-export { renderUI } from "./ui/render"
+export { renderUI, renderUiScript, renderUiStyles } from "./ui/render"

@@ -11,18 +11,31 @@ export function renderUI(): string {
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300;400;500&display=swap" rel="stylesheet" />
-  <style>
-${uiStyles}
-  </style>
+  <link rel="stylesheet" href="/ai/styles.css" />
 </head>
 
 <body>
 
 <canvas id="stars" aria-hidden="true"></canvas>
 <div class="nebula" aria-hidden="true"></div>
+<div id="ambientVisual" aria-hidden="true">
+  <img id="ambientVisualImage" alt="" />
+</div>
 <div class="grain" aria-hidden="true"></div>
 <div class="grid" aria-hidden="true"></div>
 <div class="scanline" aria-hidden="true"></div>
+<aside id="sceneVisual" aria-hidden="true">
+  <div class="sceneFrame">
+    <div class="sceneMetaRow">
+      <div id="sceneVisualLabel" class="sceneLabel">ARCHIVE VISION // MATERIALIZING</div>
+      <div id="sceneVisualTimer" class="sceneTimer" hidden></div>
+    </div>
+    <div class="sceneImageShell">
+      <img id="sceneVisualImage" alt="" />
+    </div>
+    <div id="sceneVisualCaption" class="sceneCaption"></div>
+  </div>
+</aside>
 
 <header id="header">
   <div class="headerSlot">VELORUM ARCHIVE TERMINAL</div>
@@ -66,10 +79,16 @@ ${uiStyles}
 
 <audio id="meditationAudio" loop preload="none"></audio>
 
-<script>
-${uiScript}
-</script>
+<script src="/ai/script.js" defer></script>
 
 </body>
 </html>`
+}
+
+export function renderUiStyles(): string {
+  return uiStyles
+}
+
+export function renderUiScript(): string {
+  return uiScript
 }

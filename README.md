@@ -46,6 +46,9 @@ It frames interaction as contact with **Velorum**: an ancient autonomous vessel 
 
 - cinematic terminal interface with lighter glass framing
 - starfield-first layout with more visible space on desktop and mobile
+- ambient archive-art layer that can drift behind the terminal during lore-heavy exchanges
+- archive photo / vision card support with short-lived memory windows and countdown timing
+- amber-toned official portrait treatment for archival character reveals
 - meditation mode that nearly dissolves the UI into stars and ambient pink noise
 - modern browser-safe meditation audio path using AudioWorklet with graceful fallback
 - generated meditation drone and rare ghost-comms layered in Web Audio
@@ -89,6 +92,7 @@ The current terminal presentation is intentionally tuned toward:
 
 - more visible starfield around and through the terminal shell
 - a restrained amber archival aesthetic instead of a heavy opaque console
+- memory flashes that surface briefly, then fade like fragments recalled by the ship
 - meditation mode as near-solitude with stars, drift, and reactor-noise ambience
 - responsive behavior that still feels like a ship console on mobile
 

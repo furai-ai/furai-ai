@@ -61,6 +61,46 @@ export const uiStyles = `    :root {
         radial-gradient(ellipse 90% 60% at 50% 50%, rgba(8,4,2,0.58) 0%, transparent 100%);
     }
 
+    #ambientVisual {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 2.2s ease;
+    }
+
+    #ambientVisual::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(255, 196, 116, 0.16), transparent 28%),
+        radial-gradient(circle at 82% 76%, rgba(255, 175, 92, 0.12), transparent 24%),
+        linear-gradient(180deg, rgba(1, 2, 8, 0.08), rgba(1, 2, 8, 0.46) 38%, rgba(1, 2, 8, 0.72) 100%);
+    }
+
+    #ambientVisual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.08);
+      filter: blur(24px) saturate(0.84) brightness(0.4) contrast(1.06);
+      opacity: 0.88;
+      animation: ambientFloat 38s linear infinite;
+    }
+
+    #ambientVisual.is-active {
+      opacity: 0.82;
+    }
+
+    @keyframes ambientFloat {
+      0%   { transform: scale(1.08) translate3d(0, 0, 0); }
+      50%  { transform: scale(1.13) translate3d(-1.4%, -1.1%, 0); }
+      100% { transform: scale(1.08) translate3d(0, 0, 0); }
+    }
+
     .grain {
       position: fixed;
       inset: 0;
@@ -95,6 +135,111 @@ export const uiStyles = `    :root {
       background: linear-gradient(90deg, transparent, rgba(232,168,76,0.12), transparent);
       animation: scanPulse 5s ease-in-out infinite;
       pointer-events: none;
+    }
+
+    #sceneVisual {
+      position: fixed;
+      right: 24px;
+      bottom: calc(34px + env(safe-area-inset-bottom));
+      z-index: 7;
+      width: min(34vw, 390px);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    #sceneVisual.is-active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sceneFrame {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      background:
+        linear-gradient(180deg, rgba(13, 8, 4, 0.84), rgba(6, 4, 2, 0.7)),
+        rgba(8, 5, 2, 0.72);
+      border: 1px solid rgba(232, 168, 76, 0.18);
+      box-shadow:
+        0 18px 38px rgba(0, 0, 0, 0.26),
+        inset 0 1px 0 rgba(255, 233, 196, 0.04);
+      backdrop-filter: blur(10px);
+    }
+
+    .sceneMetaRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sceneLabel {
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255, 201, 106, 0.76);
+    }
+
+    .sceneTimer {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border: 1px solid rgba(255, 201, 106, 0.22);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(248, 234, 208, 0.86);
+      background: rgba(0, 0, 0, 0.2);
+      font-family: var(--font-mono);
+    }
+
+    .sceneImageShell {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      border: 1px solid rgba(232, 168, 76, 0.16);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .sceneImageShell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 219, 168, 0.06), transparent 34%, rgba(0, 0, 0, 0.18) 100%);
+      pointer-events: none;
+    }
+
+    .sceneImageShell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(0.94) contrast(1.04) brightness(0.92);
+      transform: scale(1.01);
+    }
+
+    #sceneVisual[data-asset-kind="official_portrait"] .sceneImageShell {
+      background:
+        radial-gradient(circle at 50% 24%, rgba(255, 191, 96, 0.18), transparent 48%),
+        rgba(17, 10, 3, 0.88);
+    }
+
+    #sceneVisual[data-asset-kind="official_portrait"] .sceneImageShell::after {
+      background:
+        linear-gradient(180deg, rgba(255, 214, 149, 0.16), rgba(120, 62, 12, 0.08) 38%, rgba(0, 0, 0, 0.3) 100%);
+    }
+
+    #sceneVisual[data-asset-kind="official_portrait"] .sceneImageShell img {
+      filter: grayscale(1) sepia(1) saturate(4.2) hue-rotate(338deg) brightness(0.76) contrast(1.14);
+    }
+
+    .sceneCaption {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(248, 234, 208, 0.82);
     }
 
     @keyframes gridDrift {
@@ -439,6 +584,14 @@ export const uiStyles = `    :root {
       opacity: 0.85;
     }
 
+    .meditation #ambientVisual {
+      opacity: 0.18;
+    }
+
+    .meditation #sceneVisual {
+      opacity: 0.08;
+    }
+
     .meditation .grain {
       opacity: 0.018;
     }
@@ -488,6 +641,12 @@ export const uiStyles = `    :root {
         padding: 14px;
         font-size: 13px;
       }
+
+      #sceneVisual {
+        right: 12px;
+        bottom: calc(18px + env(safe-area-inset-bottom));
+        width: min(42vw, 320px);
+      }
     }
 
     @media (max-width: 640px) {
@@ -524,5 +683,20 @@ export const uiStyles = `    :root {
 
       #input {
         font-size: 16px;
+      }
+
+      #ambientVisual img {
+        filter: blur(18px) saturate(0.82) brightness(0.38) contrast(1.04);
+      }
+
+      #sceneVisual {
+        left: 10px;
+        right: 10px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        width: auto;
+      }
+
+      .sceneFrame {
+        padding: 12px;
       }
     }`
