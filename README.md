@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  Public interface layer for the FURAI experience.
+  Amber archive terminal for the FURAI experience.
 </p>
 
 <p align="center">
@@ -23,47 +23,30 @@ mode: listening through glass and starlight
 ![ui](https://img.shields.io/badge/interface-terminal-yellow)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-FURAI is an atmospheric AI terminal designed as a deep-space archive interface.
+FURAI is a cinematic AI terminal framed as contact with **Velorum**:
+an ancient archive vessel drifting through memory, silence, and lost civilizations.
 
-It frames interaction as contact with **Velorum**: an ancient autonomous vessel preserving fragments of memory, silence, and lost civilizations.
-
-The current public build leans into an amber archival terminal aesthetic:
-reactive memory visuals, brief portrait flashes, slow background drift,
-and a UI that feels more like a remembered ship-console than a chat app.
+The public build is designed to feel like a remembered ship-console:
+amber light, starfield drift, short-lived archive flashes,
+and reactive visual moments tied to lore instead of constant UI noise.
 
 > This repository contains the public terminal interface layer of FURAI.
 >
 > The core AI engine and memory orchestration are part of the private system and not included in this repository.
 
-## Live Demo
+## Live
 
 [furai.space](https://furai.space)
 
-## What This Repository Includes
+## Highlights
 
-- terminal UI entry point
-- visual styling system
-- client-side interaction logic
-- public presentation layer for the FURAI experience
-
-## Features
-
-- cinematic terminal interface with lighter glass framing
-- starfield-first layout with more visible space on desktop and mobile
-- ambient archive-art layer that can drift behind the terminal during lore-heavy exchanges
-- archive photo / vision card support with short-lived memory windows and countdown timing
-- amber-toned official portrait treatment for archival character reveals
-- lore-reactive visual moments instead of constant image generation spam
-- canonical archive portraits for key figures such as Captain Rithan and Chief Engineer Viikaa
-- meditation mode that nearly dissolves the UI into stars and ambient pink noise
-- modern browser-safe meditation audio path using AudioWorklet with graceful fallback
-- generated meditation drone and rare ghost-comms layered in Web Audio
-- ghost radio transmissions
-- dream fragments and archive signals
-- mobile viewport stabilization for on-screen keyboards
-- visitor-token continuity on the client layer
-- adaptive repeat-visit boot pacing for faster daily returns
-- modular UI structure for render, styles, and client behavior
+- amber archival terminal language instead of glossy sci-fi chrome
+- starfield-first layout with lighter glass framing on desktop and mobile
+- reactive archive visuals: ambient drift, short portrait flashes, memory windows
+- canonical portraits for key figures such as Captain Rithan and Chief Engineer Viikaa
+- meditation mode with pink noise, generated drone, and ghost-comms texture
+- lore-aware visual pacing that avoids always-on image spam
+- visitor continuity and repeat-visit rhythm on the client layer
 
 ## Project Structure
 
@@ -72,9 +55,7 @@ and a UI that feels more like a remembered ship-console than a chat app.
 - `ui/styles.ts` - visual system and terminal styling
 - `ui/script.ts` - client-side terminal behavior
 
-## Runtime Architecture
-
-The full FURAI system runs on:
+## Stack
 
 - Cloudflare Workers
 - Cloudflare AI
@@ -82,35 +63,18 @@ The full FURAI system runs on:
 
 This public repository exposes the interface layer only.
 
-## Current Public Direction
+## What This Repo Shows
 
-- a restrained amber terminal language instead of glossy sci-fi chrome
-- short-lived "ship memory" reveals that appear, linger, and fade
-- lore-sensitive visuals that surface on strong narrative beats
-- stable canonical character presentation layered over atmospheric generation
-- a terminal that still reads cleanly on mobile without losing mood
+- the public interface layer
+- the visual presentation system
+- the terminal interaction code
+- the atmosphere and pacing of the live experience
 
-## Technical Highlights
+Not included here:
 
-- Built and deployed a production AI experience on Cloudflare Workers with a custom cinematic terminal interface and responsive mobile behavior.
-- Designed the UI as a modular client system with separate render, styles, and interaction layers, including starfield rendering, meditation mode, and ambient audio control.
-- Added visual-memory presentation layers for ambient archive art, short portrait windows, and countdown-based archival flashes.
-- Tuned the interface to support canonical portraits and lore-aware visual reveals without collapsing into always-on image noise.
-- Implemented durable visitor continuity beyond IP through token-based identity, returning-user recognition, profile memory, and interest persistence.
-- Hardened the first-contact flow with explicit handling for onboarding, name capture, language continuity, cooldown edge cases, malformed input, and fallback recovery.
-- Refactored backend state management into clearer modules and added structured request logging, response normalization, and safer memory persistence patterns.
-- Added regression-focused automated coverage for routing, onboarding, memory behavior, archive-id normalization, AI fallback paths, and error scenarios.
-- Maintained a deliberate public/private architecture by open-sourcing the interface layer while keeping internal AI orchestration and memory systems private.
-
-## Interface Direction
-
-The current terminal presentation is intentionally tuned toward:
-
-- more visible starfield around and through the terminal shell
-- a restrained amber archival aesthetic instead of a heavy opaque console
-- memory flashes that surface briefly, then fade like fragments recalled by the ship
-- meditation mode as near-solitude with stars, drift, and reactor-noise ambience
-- responsive behavior that still feels like a ship console on mobile
+- core AI engine
+- memory architecture
+- internal orchestration logic
 
 ## Philosophy
 
@@ -128,17 +92,3 @@ An AI designed for presence.
 
 Experimental project.  
 The public interface will continue to evolve over time.
-
-## Open Source Scope
-
-Open in this repository:
-
-- interface code
-- visual presentation
-- terminal interaction layer
-
-Not included here:
-
-- core AI engine
-- memory architecture
-- internal orchestration logic
