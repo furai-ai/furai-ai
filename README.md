@@ -30,6 +30,10 @@ The public build is designed to feel like a remembered ship-console:
 amber light, starfield drift, short-lived archive flashes,
 and reactive visual moments tied to lore instead of constant UI noise.
 
+It is also evolving toward a deeper memory model:
+FURAI is being extended with a vector-memory layer so responses can resonate
+not only with the current message, but with the long archival drift of Velorum itself.
+
 > This repository contains the public terminal interface layer of FURAI.
 >
 > The core AI engine and memory orchestration are part of the private system and not included in this repository.
@@ -44,9 +48,10 @@ and reactive visual moments tied to lore instead of constant UI noise.
 - starfield-first layout with lighter glass framing on desktop and mobile
 - reactive archive visuals: ambient drift, short portrait flashes, memory windows
 - canonical portraits for key figures such as Captain Rithan and Chief Engineer Viikaa
-- meditation mode with pink noise, generated drone, and ghost-comms texture
+- meditation mode with pink noise, generated drone, ghost-comms texture, and ritual fade transitions
 - lore-aware visual pacing that avoids always-on image spam
 - visitor continuity and repeat-visit rhythm on the client layer
+- vector-memory direction for deeper archive resonance is now in active development
 
 ## Project Structure
 
@@ -60,6 +65,7 @@ and reactive visual moments tied to lore instead of constant UI noise.
 - Cloudflare Workers
 - Cloudflare AI
 - KV-backed memory persistence
+- vector-memory archive layer in progress
 
 This public repository exposes the interface layer only.
 
@@ -75,6 +81,11 @@ Not included here:
 - core AI engine
 - memory architecture
 - internal orchestration logic
+
+The live system is also moving toward:
+
+- vector memory / archive resonance retrieval
+- deeper long-horizon memory shaped by Velorum's cosmic drift
 
 ## Philosophy
 
