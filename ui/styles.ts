@@ -17,6 +17,7 @@ export const uiStyles = `    :root {
       --header-height:     64px;
       --terminal-max-w:    860px;
       --terminal-pad:      18px;
+      --meditation-transition-ms: 5000ms;
     }
 
     *, *::before, *::after {
@@ -42,6 +43,19 @@ export const uiStyles = `    :root {
       background: #010208;
     }
 
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 9;
+      pointer-events: none;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(32, 18, 6, 0.18), rgba(2, 2, 6, 0.58) 48%, rgba(0, 0, 0, 0.94) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.82));
+      transition: opacity var(--meditation-transition-ms) ease;
+    }
+
     #stars {
       position: fixed;
       inset: 0;
@@ -59,6 +73,7 @@ export const uiStyles = `    :root {
         radial-gradient(ellipse 45% 55% at 88% 82%, rgba(120,50,10,0.028) 0%, transparent 65%),
         radial-gradient(ellipse 70% 40% at 65% 30%, rgba(200,120,30,0.02) 0%, transparent 60%),
         radial-gradient(ellipse 90% 60% at 50% 50%, rgba(8,4,2,0.58) 0%, transparent 100%);
+      transition: opacity var(--meditation-transition-ms) ease;
     }
 
     #ambientVisual {
@@ -68,7 +83,7 @@ export const uiStyles = `    :root {
       overflow: hidden;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 2.2s ease;
+      transition: opacity 2.2s ease, filter var(--meditation-transition-ms) ease;
     }
 
     #ambientVisual::after {
@@ -111,6 +126,7 @@ export const uiStyles = `    :root {
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-repeat: repeat;
       background-size: 180px 180px;
+      transition: opacity var(--meditation-transition-ms) ease;
     }
 
     .grid {
@@ -123,6 +139,7 @@ export const uiStyles = `    :root {
         linear-gradient(90deg, rgba(255,179,71,0.006) 1px, transparent 1px);
       background-size: 80px 80px;
       animation: gridDrift 200s linear infinite;
+      transition: opacity var(--meditation-transition-ms) ease;
     }
 
     .scanline {
@@ -135,6 +152,7 @@ export const uiStyles = `    :root {
       background: linear-gradient(90deg, transparent, rgba(232,168,76,0.12), transparent);
       animation: scanPulse 5s ease-in-out infinite;
       pointer-events: none;
+      transition: opacity var(--meditation-transition-ms) ease;
     }
 
     #sceneVisual {
@@ -146,12 +164,74 @@ export const uiStyles = `    :root {
       pointer-events: none;
       opacity: 0;
       transform: translateY(14px);
-      transition: opacity 0.9s ease, transform 0.9s ease;
+      transition: opacity 0.9s ease, transform 0.9s ease, filter var(--meditation-transition-ms) ease;
     }
 
     #sceneVisual.is-active {
       opacity: 1;
       transform: translateY(0);
+    }
+
+    #meditationTransition {
+      position: fixed;
+      top: calc(env(safe-area-inset-top) + (var(--header-height) / 2) - 18px);
+      left: 50%;
+      right: auto;
+      z-index: 11;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      padding: 0;
+      transform: translateX(-50%);
+      transition: opacity 900ms ease;
+    }
+
+    #meditationTransition.is-active {
+      opacity: 1;
+    }
+
+    .meditationTransition-frame {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: min(72vw, 320px);
+      padding: 10px 18px;
+      text-align: center;
+      transform: translateY(10px) scale(0.985);
+      opacity: 0;
+      border: 1px solid rgba(255, 191, 96, 0.12);
+      background:
+        linear-gradient(180deg, rgba(10, 6, 3, 0.52), rgba(4, 3, 2, 0.2)),
+        rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+      transition: opacity 1800ms ease, transform 3600ms ease;
+    }
+
+    #meditationTransition.is-active .meditationTransition-frame {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .meditationTransition-title {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255, 205, 118, 0.92);
+      text-shadow: 0 0 18px rgba(255, 179, 71, 0.12);
+    }
+
+    .meditationTransition-subtitle {
+      max-width: min(72vw, 580px);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.8;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(248, 234, 208, 0.48);
+      display: none;
     }
 
     .sceneFrame {
@@ -267,6 +347,7 @@ export const uiStyles = `    :root {
       background: linear-gradient(180deg, rgba(7,5,2,0.62), rgba(7,5,2,0.12));
       border-bottom: 1px solid var(--color-border);
       backdrop-filter: blur(8px);
+      transition: opacity var(--meditation-transition-ms) ease, border-bottom-color var(--meditation-transition-ms) ease, backdrop-filter var(--meditation-transition-ms) ease;
     }
 
     .headerSlot {
@@ -302,6 +383,12 @@ export const uiStyles = `    :root {
       transition: color 0.35s ease, transform 0.35s ease;
       isolation: isolate;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    .frameButton:disabled {
+      cursor: default;
+      opacity: 0.62;
+      transform: none;
     }
 
     .frameButton::before,
@@ -380,6 +467,7 @@ export const uiStyles = `    :root {
         inset 0 -1px 0 rgba(0, 0, 0, 0.03);
       backdrop-filter: blur(1.25px) saturate(106%);
       overflow: hidden;
+      transition: opacity var(--meditation-transition-ms) ease, border-color var(--meditation-transition-ms) ease, box-shadow var(--meditation-transition-ms) ease, backdrop-filter var(--meditation-transition-ms) ease;
     }
 
     #terminalShell::before,
@@ -430,6 +518,7 @@ export const uiStyles = `    :root {
       gap: 8px;
       align-items: center;
       padding-bottom: 2px;
+      transition: opacity var(--meditation-transition-ms) ease;
     }
 
     .metaItem {
@@ -462,6 +551,7 @@ export const uiStyles = `    :root {
         inset 0 1px 0 rgba(255, 227, 183, 0.012),
         inset 0 0 6px rgba(0, 0, 0, 0.01);
       backdrop-filter: blur(0.35px);
+      transition: opacity var(--meditation-transition-ms) ease, border-color var(--meditation-transition-ms) ease, background var(--meditation-transition-ms) ease, box-shadow var(--meditation-transition-ms) ease;
     }
 
     #log::-webkit-scrollbar {
@@ -477,6 +567,7 @@ export const uiStyles = `    :root {
       display: flex;
       flex-direction: column;
       gap: 10px;
+      transition: opacity var(--meditation-transition-ms) ease;
     }
 
     .inputLabel {
@@ -557,51 +648,78 @@ export const uiStyles = `    :root {
     }
 
     .meditation #terminalShell {
-      opacity: 0.07;
+      opacity: 0.05;
       border-color: rgba(232, 168, 76, 0.06);
       box-shadow: none;
       backdrop-filter: blur(0.2px) saturate(102%);
     }
 
     .meditation #header {
-      opacity: 0.16;
+      opacity: 0.42;
       border-bottom-color: rgba(232, 168, 76, 0.04);
       backdrop-filter: blur(2px);
     }
 
+    .meditation .headerSlot {
+      opacity: 0.18;
+    }
+
+    .meditation #meditationToggle {
+      color: rgba(255, 210, 126, 0.98);
+      text-shadow: 0 0 14px rgba(255, 179, 71, 0.22);
+      background: linear-gradient(180deg, rgba(20, 12, 4, 0.46), rgba(8, 5, 2, 0.18));
+      box-shadow:
+        0 0 0 1px rgba(255, 191, 96, 0.12),
+        0 0 18px rgba(255, 179, 71, 0.08);
+    }
+
+    .meditation #meditationToggle::before,
+    .meditation #meditationToggle::after {
+      opacity: 0.92;
+    }
+
+    .meditation #meditationToggle .frameButton-inner {
+      opacity: 1;
+    }
+
     .meditation #terminalMeta,
     .meditation #inputDock {
-      opacity: 0.05;
+      opacity: 0.03;
     }
 
     .meditation #log {
+      opacity: 0.08;
       border-color: rgba(232, 168, 76, 0.03);
       background: rgba(1, 2, 8, 0.0001);
       box-shadow: none;
     }
 
     .meditation .nebula {
-      opacity: 0.85;
+      opacity: 0.42;
     }
 
     .meditation #ambientVisual {
-      opacity: 0.18;
+      opacity: 0.1;
     }
 
     .meditation #sceneVisual {
-      opacity: 0.08;
+      opacity: 0.04;
     }
 
     .meditation .grain {
-      opacity: 0.018;
+      opacity: 0.012;
     }
 
     .meditation .grid {
-      opacity: 0.35;
+      opacity: 0.18;
     }
 
     .meditation .scanline {
-      opacity: 0.08;
+      opacity: 0.04;
+    }
+
+    .meditation::after {
+      opacity: 0.88;
     }
 
     @media (max-width: 820px) {
@@ -646,6 +764,16 @@ export const uiStyles = `    :root {
         right: 12px;
         bottom: calc(18px + env(safe-area-inset-bottom));
         width: min(42vw, 320px);
+      }
+
+      .meditationTransition-title {
+        font-size: 10px;
+        letter-spacing: 0.26em;
+      }
+
+      .meditationTransition-subtitle {
+        font-size: 10px;
+        letter-spacing: 0.1em;
       }
     }
 
@@ -698,5 +826,11 @@ export const uiStyles = `    :root {
 
       .sceneFrame {
         padding: 12px;
+      }
+
+      .meditationTransition-frame {
+        min-width: 0;
+        width: min(100%, 360px);
+        padding: 10px 14px;
       }
     }`

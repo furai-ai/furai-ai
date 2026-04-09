@@ -36,6 +36,12 @@ export function renderUI(): string {
     <div id="sceneVisualCaption" class="sceneCaption"></div>
   </div>
 </aside>
+<div id="meditationTransition" aria-hidden="true">
+  <div class="meditationTransition-frame">
+    <div id="meditationTransitionTitle" class="meditationTransition-title"></div>
+    <div id="meditationTransitionSubtitle" class="meditationTransition-subtitle"></div>
+  </div>
+</div>
 
 <header id="header">
   <div class="headerSlot">VELORUM ARCHIVE TERMINAL</div>

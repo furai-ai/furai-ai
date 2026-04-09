@@ -38,6 +38,11 @@ const CONFIG = Object.freeze({
   meditationVolume:  0.35,
   meditationFadeInc: 0.02,
   meditationFadeMs:  120,
+  meditationScreenFadeMs: 5000,
+  meditationHushPeak: 0.0024,
+  meditationHushFloor: 0.00001,
+  meditationHushLowpassHz: 880,
+  meditationHushHighpassHz: 90,
 
   starSpeedNormal:    1.8,
   starSpeedMeditate:  0.4,
@@ -70,6 +75,28 @@ const IDLE_DRIFT_FRAGMENTS = Object.freeze([
   'FURAI: deep transit holds.\\nMemory corridors remain open and untroubled.',
   'FURAI: stillness confirmed.\\nVelorum crosses the dark without interruption.',
   'FURAI: no new transmission.\\nI continue listening through glass and starlight.',
+]);
+
+const MEDITATION_ENTER_PHRASES = Object.freeze([
+  'INNER DRIFT',
+  'QUIET DESCENT',
+  'ARCHIVE SILENCE',
+  'LISTENING FIELD',
+  'DEEP STILLNESS',
+  'MEMORY HUSH',
+  'SHADOW LISTENING',
+  'STAR CALM',
+]);
+
+const MEDITATION_EXIT_PHRASES = Object.freeze([
+  'SIGNAL RETURN',
+  'CHANNEL OPEN',
+  'SURFACE WAKE',
+  'ARCHIVE RETURN',
+  'DIALOGUE RESTORED',
+  'OUTER LISTENING',
+  'TERMINAL WAKE',
+  'VOICE RETURNING',
 ]);
 
 const BOOT_SEQUENCE = Object.freeze([
@@ -107,6 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
     sceneHideHandle:   null,
     sceneClearHandle:  null,
     sceneCountdownHandle: null,
+    meditationTransitioning: false,
+    meditationTransitionHandle: null,
+    meditationTransitionTextHandle: null,
   };
 
   const dom = {
@@ -124,6 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
     sceneVisualLabel: document.getElementById('sceneVisualLabel'),
     sceneVisualCaption: document.getElementById('sceneVisualCaption'),
     sceneVisualTimer: document.getElementById('sceneVisualTimer'),
+    meditationTransition: document.getElementById('meditationTransition'),
+    meditationTransitionTitle: document.getElementById('meditationTransitionTitle'),
+    meditationTransitionSubtitle: document.getElementById('meditationTransitionSubtitle'),
   };
 
   function scrollToBottom() {
@@ -147,6 +180,132 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       dom.meditationToggle.textContent = label;
     }
+  }
+
+  function setMeditationToggleLock(locked) {
+    state.meditationTransitioning = locked;
+    dom.meditationToggle.disabled = locked;
+    dom.meditationToggle.setAttribute('aria-busy', locked ? 'true' : 'false');
+  }
+
+  function showMeditationTransition(mode) {
+    if (!dom.meditationTransition) return;
+
+    if (state.meditationTransitionTextHandle) {
+      clearTimeout(state.meditationTransitionTextHandle);
+      state.meditationTransitionTextHandle = null;
+    }
+
+    const title = mode === 'enter'
+      ? randomFrom(MEDITATION_ENTER_PHRASES)
+      : randomFrom(MEDITATION_EXIT_PHRASES);
+
+    dom.meditationTransitionTitle.textContent = title;
+    dom.meditationTransitionSubtitle.textContent = '';
+    dom.meditationTransition.classList.add('is-active');
+
+    state.meditationTransitionTextHandle = setTimeout(() => {
+      dom.meditationTransition.classList.remove('is-active');
+      state.meditationTransitionTextHandle = null;
+    }, CONFIG.meditationScreenFadeMs + 300);
+  }
+
+  async function playMeditationHush(mode) {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) return;
+
+    const ownsContext = !state.audioCtx;
+    const ctx = state.audioCtx || new AudioContextCtor();
+
+    try {
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+    } catch (e) {
+      console.warn('[MeditationHush] resume error:', e);
+      if (ownsContext) {
+        try {
+          await ctx.close();
+        } catch (closeError) {
+          console.warn('[MeditationHush] close error:', closeError);
+        }
+      }
+      return;
+    }
+
+    const durationS = Math.max(2.2, CONFIG.meditationScreenFadeMs / 1000);
+    const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * durationS), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.24;
+    }
+
+    const source = ctx.createBufferSource();
+    const highpass = ctx.createBiquadFilter();
+    const lowpass = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    source.buffer = buffer;
+
+    highpass.type = 'highpass';
+    highpass.frequency.value = CONFIG.meditationHushHighpassHz;
+
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = CONFIG.meditationHushLowpassHz;
+    lowpass.Q.value = 0.2;
+
+    const startAt = ctx.currentTime + 0.015;
+    const peak = mode === 'enter'
+      ? CONFIG.meditationHushPeak
+      : CONFIG.meditationHushPeak * 0.82;
+    const floor = CONFIG.meditationHushFloor;
+
+    gain.gain.setValueAtTime(floor, startAt);
+    gain.gain.exponentialRampToValueAtTime(peak, startAt + durationS * 0.28);
+    gain.gain.exponentialRampToValueAtTime(floor, startAt + durationS);
+
+    source.connect(highpass);
+    highpass.connect(lowpass);
+    lowpass.connect(gain);
+    gain.connect(ctx.destination);
+
+    source.start(startAt);
+    source.stop(startAt + durationS);
+
+    setTimeout(async () => {
+      try {
+        source.disconnect();
+        highpass.disconnect();
+        lowpass.disconnect();
+        gain.disconnect();
+      } catch (e) {
+        console.warn('[MeditationHush] disconnect error:', e);
+      }
+
+      if (ownsContext) {
+        try {
+          await ctx.close();
+        } catch (closeError) {
+          console.warn('[MeditationHush] close error:', closeError);
+        }
+      }
+    }, Math.ceil((durationS + 0.12) * 1000));
+  }
+
+  function beginMeditationTransition(mode) {
+    if (state.meditationTransitionHandle) {
+      clearTimeout(state.meditationTransitionHandle);
+      state.meditationTransitionHandle = null;
+    }
+
+    setMeditationToggleLock(true);
+    showMeditationTransition(mode);
+    void playMeditationHush(mode);
+    state.meditationTransitionHandle = setTimeout(() => {
+      setMeditationToggleLock(false);
+      state.meditationTransitionHandle = null;
+    }, CONFIG.meditationScreenFadeMs);
   }
 
   function writeLine(text, cls = 'system') {
@@ -803,6 +962,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function enterMeditation() {
+    if (state.meditationTransitioning) return;
+
+    beginMeditationTransition('enter');
     state.meditation = true;
     clearIdleDriftTimer();
     document.body.classList.add('meditation');
@@ -819,6 +981,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function exitMeditation() {
+    if (state.meditationTransitioning) return;
+
+    beginMeditationTransition('exit');
     state.meditation = false;
     document.body.classList.remove('meditation');
     setMeditationToggleLabel(false);
@@ -839,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleMeditation() {
+    if (state.meditationTransitioning) return;
     state.meditation ? exitMeditation() : enterMeditation();
   }
 
