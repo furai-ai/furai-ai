@@ -87,6 +87,12 @@ The live system is also moving toward:
 - vector memory / archive resonance retrieval
 - deeper long-horizon memory shaped by Velorum's cosmic drift
 
+## Roadmap
+
+- present: terminal presence, lore-sensitive visuals, ritual meditation mode
+- next: vector memory and archive resonance retrieval
+- future: a deeper memory field shaped by centuries of Velorum drift
+
 ## Philosophy
 
 FURAI explores a different direction of AI interaction:
