@@ -105,6 +105,8 @@ reflective
 Not an AI designed for productivity.  
 An AI designed for presence.
 
+In my project I am creating a "Digital Soul”
+
 ## Status
 
 Experimental project.  
