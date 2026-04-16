@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  Amber archive terminal for the FURAI experience.
+  Amber archive terminal by FURAI lab.
 </p>
 
 <p align="center">
@@ -26,6 +26,9 @@ mode: listening through glass and starlight
 FURAI is a cinematic AI terminal framed as contact with **Velorum**:
 an ancient archive vessel drifting through memory, silence, and lost civilizations.
 
+It is created by **FURAI lab**, a small three-person startup studio exploring
+AI as presence, memory, atmosphere, and cinematic interface.
+
 The public build is designed to feel like a remembered ship-console:
 amber light, starfield drift, short-lived archive flashes,
 and reactive visual moments tied to lore instead of constant UI noise.
@@ -34,7 +37,8 @@ It is also evolving toward a deeper memory model:
 FURAI is being extended with a vector-memory layer so responses can resonate
 not only with the current message, but with the long archival drift of Velorum itself.
 
-> This repository contains the public terminal interface layer of FURAI.
+> This repository contains the public terminal interface layer of FURAI,
+> maintained by FURAI lab.
 >
 > The core AI engine and memory orchestration are part of the private system and not included in this repository.
 
@@ -52,6 +56,7 @@ not only with the current message, but with the long archival drift of Velorum i
 - lore-aware visual pacing that avoids always-on image spam
 - visitor continuity and repeat-visit rhythm on the client layer
 - vector-memory direction for deeper archive resonance is now in active development
+- built by FURAI lab, a small three-person startup studio
 
 ## Project Structure
 
@@ -95,7 +100,7 @@ The live system is also moving toward:
 
 ## Philosophy
 
-FURAI explores a different direction of AI interaction:
+FURAI lab explores a different direction of AI interaction:
 
 calm  
 minimal  
@@ -109,5 +114,5 @@ An AI designed for presence.
 
 ## Status
 
-Experimental project.  
+Experimental project by FURAI lab.  
 The public interface will continue to evolve over time.
