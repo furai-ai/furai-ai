@@ -112,6 +112,14 @@ alive
 Not an AI designed for productivity.  
 An AI designed for presence.
 
+## FURAI lab
+
+A small three-person startup studio building FURAI.
+
+- Dima - founder, AI researcher
+- Vika - UX/UI, product designer
+- Mister C - backend/frontend
+
 ## Status
 
 Experimental project by FURAI lab.  
