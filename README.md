@@ -18,11 +18,6 @@ mode: listening through glass and starlight
 
 # FURAI AI
 
-![status](https://img.shields.io/badge/status-experimental-orange)
-![runtime](https://img.shields.io/badge/runtime-cloudflare_workers-black)
-![ui](https://img.shields.io/badge/interface-terminal-yellow)
-![license](https://img.shields.io/badge/license-MIT-green)
-
 FURAI is a cinematic AI terminal framed as contact with **Velorum**:
 an ancient archive vessel drifting through memory, silence, and lost civilizations.
 
@@ -124,3 +119,8 @@ A small three-person startup studio building FURAI.
 
 Experimental project by FURAI lab.  
 The public interface will continue to evolve over time.
+
+![status](https://img.shields.io/badge/status-experimental-orange)
+![runtime](https://img.shields.io/badge/runtime-cloudflare_workers-black)
+![ui](https://img.shields.io/badge/interface-terminal-yellow)
+![license](https://img.shields.io/badge/license-MIT-green)
