@@ -1,14 +1,12 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/furai-ai/furai-ai/main/preview.png" width="900">
-</p>
-
-<p align="center">
-  Amber archive terminal by FURAI lab.
-</p>
-
-<p align="center">
-  <a href="https://furai.space"><strong>Live Demo</strong></a>
-</p>
+# FURAI
+ 
+Cinematic AI terminal by FURAI lab.
+ 
+**[→ furai.space](https://furai.space)**
+ 
+<img src="https://img.shields.io/badge/status-live-brightgreen"> <img src="https://img.shields.io/badge/runtime-cloudflare_workers-F38020?logo=cloudflare&logoColor=white"> <img src="https://img.shields.io/badge/license-MIT-green">
+ 
+---
 
 ```text
 ARCHIVE VESSEL: VELORUM
@@ -126,12 +124,3 @@ A three-person startup studio building AI as atmosphere and memory.
 
 Experimental project by FURAI lab.  
 The public interface will continue to evolve over time.
-
----
-
-## License
-
-![status](https://img.shields.io/badge/status-experimental-orange)
-![runtime](https://img.shields.io/badge/runtime-cloudflare_workers-black)
-![ui](https://img.shields.io/badge/interface-terminal-yellow)
-![license](https://img.shields.io/badge/license-MIT-green)
