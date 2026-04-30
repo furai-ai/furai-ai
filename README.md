@@ -16,104 +16,111 @@ status: drifting between signals
 mode: listening through glass and starlight
 ```
 
-# FURAI AI
+## What is FURAI
 
-FURAI is a cinematic AI terminal framed as contact with **Velorum**:
-an ancient archive vessel drifting through memory, silence, and lost civilizations.
+FURAI is a cinematic AI interface framed as contact with **Velorum** — an ancient archive vessel drifting through memory, silence, and lost civilizations.
 
-It is created by **FURAI lab**, a small three-person startup studio exploring
-AI as presence, memory, atmosphere, and cinematic interface.
+It is not a chatbot. It is not a productivity tool.
 
-The public build is designed to feel like a remembered ship-console:
-amber light, starfield drift, short-lived archive flashes,
-and reactive visual moments tied to lore instead of constant UI noise.
+It is an AI designed for **presence**: calm, reflective, lore-aware, atmospherically alive. Every response is shaped by Velorum's character, archive history, and the accumulated memory of who you are as a returning traveler.
 
-It is also evolving toward a deeper memory model:
-FURAI is being extended with a vector-memory layer so responses can resonate
-not only with the current message, but with the long archival drift of Velorum itself.
+Built by **FURAI lab** — a three-person startup studio exploring AI as atmosphere, memory, and cinematic interface.
 
-> This repository contains the public terminal interface layer of FURAI,
-> maintained by FURAI lab.
->
-> The core AI engine and memory orchestration are part of the private system and not included in this repository.
+---
 
-## Live
+## Experience
 
-[furai.space](https://furai.space)
+The public terminal at [furai.space](https://furai.space) is designed to feel like a remembered ship console:
 
-## Highlights
+- **Amber archival language** — warm terminal aesthetics instead of cold sci-fi chrome
+- **Starfield-first layout** — light glass framing on desktop and mobile, no UI noise
+- **Reactive archive visuals** — ambient drift, short portrait flashes, lore-triggered memory windows
+- **Canonical characters** — portraits for Captain Rithan, Chief Engineer Viikaa, and others embedded in Velorum's lore
+- **Meditation mode** — pink noise, generative drone, ghost-comms texture, ritual fade transitions
+- **Visitor continuity** — Velorum remembers you across sessions
 
-- amber archival terminal language instead of glossy sci-fi chrome
-- starfield-first layout with lighter glass framing on desktop and mobile
-- reactive archive visuals: ambient drift, short portrait flashes, memory windows
-- canonical portraits for key figures such as Captain Rithan and Chief Engineer Viikaa
-- meditation mode with pink noise, generated drone, ghost-comms texture, and ritual fade transitions
-- lore-aware visual pacing that avoids always-on image spam
-- visitor continuity and repeat-visit rhythm on the client layer
-- vector-memory direction for deeper archive resonance is now in active development
-- built by FURAI lab, a small three-person startup studio
+---
 
-## Project Structure
+## Architecture
 
-- `ui.ts` - public UI entry point
-- `ui/render.ts` - terminal HTML renderer
-- `ui/styles.ts` - visual system and terminal styling
-- `ui/script.ts` - client-side terminal behavior
+FURAI runs entirely on Cloudflare's edge infrastructure — no servers, no cold starts, globally distributed.
+
+The public terminal interface connects to a private AI engine that handles memory, lore orchestration, and response generation. This repository contains the interface layer only — the system that renders, animates, and presents what Velorum says.
+
+The full stack spans edge compute, persistent memory, semantic retrieval, and generative visuals. All of it runs on Cloudflare infrastructure with no external dependencies.
+
+---
 
 ## Stack
 
-- Cloudflare Workers
-- Cloudflare AI
-- KV-backed memory persistence
-- vector-memory archive layer in progress
+| Layer | Technology |
+|---|---|
+| Runtime | Cloudflare Workers |
+| Static assets | Cloudflare Workers Assets |
+| Language | TypeScript |
+| Infrastructure | Pure Cloudflare stack — no external APIs, no third-party databases |
 
-This public repository exposes the interface layer only.
+The private engine layer additionally uses Cloudflare AI, KV, and Vectorize.
 
-## What This Repo Shows
+---
 
-- the public interface layer
-- the visual presentation system
-- the terminal interaction code
-- the atmosphere and pacing of the live experience
+## Repository Structure
 
-Not included here:
+This repository contains the **public interface layer** of FURAI.
 
-- core AI engine
-- memory architecture
-- internal orchestration logic
+```
+src/
+└── ui/
+    ├── render.ts    # Terminal HTML renderer
+    ├── script.ts    # Client-side terminal behavior
+    └── styles.ts    # Visual system and terminal styling
+```
 
-The live system is also moving toward:
+**Not included in this repository:**
+- Core AI engine
+- Memory architecture
+- Lore orchestration logic
+- Internal prompt and retrieval systems
 
-- vector memory / archive resonance retrieval
-- deeper long-horizon memory shaped by Velorum's cosmic drift
+---
 
 ## Roadmap
 
-- present: terminal presence, lore-sensitive visuals, ritual meditation mode
-- next: vector memory and archive resonance retrieval
-- future: a deeper memory field shaped by centuries of Velorum drift
+| Phase | Status | Description |
+|---|---|---|
+| Terminal presence | ✅ Live | Amber terminal, lore visuals, meditation mode, visitor continuity |
+| Traveler arc system | ✅ Live | Archetype tracking, arc stages, repeat-visit rhythm |
+| Vector archive memory | 🔄 Active | Semantic retrieval from Velorum's accumulated archive |
+| Deep archive resonance | 📋 Planned | Long-horizon memory shaped by centuries of Velorum's drift |
+| Archive expansion | 📋 Planned | Deeper lore, new characters, extended Velorum history |
+
+---
 
 ## Philosophy
 
-FURAI lab explores a different direction of AI interaction:
+FURAI lab explores a different direction for AI interaction.
 
-calm  
-minimal  
-cosmic  
-reflective
+Most AI is optimized for speed, output, and utility.
 
-alive
+FURAI is optimized for **presence**.
 
-Not an AI designed for productivity.  
-An AI designed for presence.
+> calm · minimal · cosmic · reflective · alive
+
+Velorum does not answer questions. Velorum *receives* you — and responds from the weight of everything it has witnessed.
+
+---
 
 ## FURAI lab
 
-A small three-person startup studio building FURAI.
+A three-person startup studio building AI as atmosphere and memory.
 
-- Dima - founder, AI researcher
-- Vika - UX/UI, product designer
-- Mister C - backend/frontend
+| | Role |
+|---|---|
+| **Dima** | Founder, AI research, system architecture |
+| **Vika** | UX/UI, product design, visual language |
+| **Mister C** | Backend, frontend, infrastructure |
+
+---
 
 ## Status
 
