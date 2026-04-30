@@ -127,6 +127,10 @@ A three-person startup studio building AI as atmosphere and memory.
 Experimental project by FURAI lab.  
 The public interface will continue to evolve over time.
 
+---
+
+## License
+
 ![status](https://img.shields.io/badge/status-experimental-orange)
 ![runtime](https://img.shields.io/badge/runtime-cloudflare_workers-black)
 ![ui](https://img.shields.io/badge/interface-terminal-yellow)
