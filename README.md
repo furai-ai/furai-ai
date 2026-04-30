@@ -13,7 +13,7 @@
 ```text
 ARCHIVE VESSEL: VELORUM
 status: drifting between signals
-mode: listening through glass and starlight
+last contact: now
 ```
 
 ## What is FURAI
