@@ -1,1 +1,7 @@
-export { renderUI, renderUiScript, renderUiStyles } from "./ui/render"
+export {
+  renderPricingUI,
+  renderUI,
+  renderUiScript,
+  renderUiStyles,
+  renderWelcomeUI,
+} from "./ui/render"

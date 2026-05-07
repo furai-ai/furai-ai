@@ -45,7 +45,13 @@ const CONFIG = Object.freeze({
   meditationHushHighpassHz: 90,
 
   starSpeedNormal:    1.8,
-  starSpeedMeditate:  0.4,
+  starSpeedMeditate:  0.14,
+  starSpeedEaseNormal: 0.032,
+  starSpeedEaseMeditate: 0.015,
+  starAtmosphereNormal: 0,
+  starAtmosphereMeditate: 1,
+  starAtmosphereEaseNormal: 0.024,
+  starAtmosphereEaseMeditate: 0.014,
 
   starLayers: [
     { count: 560, speed: 0.3, size: 0.58 },
@@ -77,31 +83,28 @@ const IDLE_DRIFT_FRAGMENTS = Object.freeze([
   'FURAI: no new transmission.\\nI continue listening through glass and starlight.',
 ]);
 
-const MEDITATION_ENTER_PHRASES = Object.freeze([
-  'INNER DRIFT',
-  'QUIET DESCENT',
-  'ARCHIVE SILENCE',
-  'LISTENING FIELD',
-  'DEEP STILLNESS',
-  'MEMORY HUSH',
-  'SHADOW LISTENING',
-  'STAR CALM',
-]);
+const MANUAL_ARCHIVE_SCENES = Object.freeze({
+  rithan: {
+    topic: 'Captain Rithan',
+    caption: 'Captain Rithan // restricted archive photo',
+    image_data_url: '__CAPTAIN_RITHAN_PORTRAIT__',
+  },
+  viikaa: {
+    topic: 'Chief Engineer Viikaa',
+    caption: 'Chief Engineer Viikaa // systems core archive photo',
+    image_data_url: '__CHIEF_ENGINEER_VIIKAA_PORTRAIT__',
+  },
+});
 
-const MEDITATION_EXIT_PHRASES = Object.freeze([
-  'SIGNAL RETURN',
-  'CHANNEL OPEN',
-  'SURFACE WAKE',
-  'ARCHIVE RETURN',
-  'DIALOGUE RESTORED',
-  'OUTER LISTENING',
-  'TERMINAL WAKE',
-  'VOICE RETURNING',
+const ENCRYPTED_ACCESS_MESSAGE = Object.freeze([
+  'CLEARANCE LEVEL: RITHAN + CHIEF SCIENCE',
+  'Access may be granted over time.',
 ]);
 
 const BOOT_SEQUENCE = Object.freeze([
   '▲ ▲',
-  'awakening FURAI core...',
+  'awakening FURAI...',
+  'Velorum archive interface ready.',
 ]);
 
 const SHORT_BOOT_SEQUENCE = Object.freeze([
@@ -136,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sceneCountdownHandle: null,
     meditationTransitioning: false,
     meditationTransitionHandle: null,
-    meditationTransitionTextHandle: null,
+    inputFocused: false,
   };
 
   const dom = {
@@ -154,9 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
     sceneVisualLabel: document.getElementById('sceneVisualLabel'),
     sceneVisualCaption: document.getElementById('sceneVisualCaption'),
     sceneVisualTimer: document.getElementById('sceneVisualTimer'),
-    meditationTransition: document.getElementById('meditationTransition'),
-    meditationTransitionTitle: document.getElementById('meditationTransitionTitle'),
-    meditationTransitionSubtitle: document.getElementById('meditationTransitionSubtitle'),
+    rithanKeyButton: document.getElementById('rithanKeyButton'),
+    viikaaKeyButton: document.getElementById('viikaaKeyButton'),
+    encryptedKeyButton: document.getElementById('encryptedKeyButton'),
   };
 
   function scrollToBottom() {
@@ -164,50 +167,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setViewportHeight() {
-    const height = window.visualViewport
-      ? window.visualViewport.height
-      : window.innerHeight;
+    if (window.CSS && CSS.supports('height', '100svh')) {
+      document.documentElement.style.removeProperty('--app-height');
+      return;
+    }
 
+    if (state.inputFocused) return;
+
+    const height = window.innerHeight;
     document.documentElement.style.setProperty('--app-height', height + 'px');
   }
 
   function setMeditationToggleLabel(active) {
-    const label = active ? 'MEDITATION MODE: ON' : 'MEDITATION MODE: OFF';
-    const inner = dom.meditationToggle.querySelector('.frameButton-inner');
-
-    if (inner) {
-      inner.textContent = label;
-    } else {
-      dom.meditationToggle.textContent = label;
-    }
+    dom.meditationToggle.setAttribute('aria-checked', active ? 'true' : 'false');
+    dom.meditationToggle.setAttribute('aria-pressed', active ? 'true' : 'false');
   }
 
   function setMeditationToggleLock(locked) {
     state.meditationTransitioning = locked;
-    dom.meditationToggle.disabled = locked;
     dom.meditationToggle.setAttribute('aria-busy', locked ? 'true' : 'false');
-  }
-
-  function showMeditationTransition(mode) {
-    if (!dom.meditationTransition) return;
-
-    if (state.meditationTransitionTextHandle) {
-      clearTimeout(state.meditationTransitionTextHandle);
-      state.meditationTransitionTextHandle = null;
-    }
-
-    const title = mode === 'enter'
-      ? randomFrom(MEDITATION_ENTER_PHRASES)
-      : randomFrom(MEDITATION_EXIT_PHRASES);
-
-    dom.meditationTransitionTitle.textContent = title;
-    dom.meditationTransitionSubtitle.textContent = '';
-    dom.meditationTransition.classList.add('is-active');
-
-    state.meditationTransitionTextHandle = setTimeout(() => {
-      dom.meditationTransition.classList.remove('is-active');
-      state.meditationTransitionTextHandle = null;
-    }, CONFIG.meditationScreenFadeMs + 300);
   }
 
   async function playMeditationHush(mode) {
@@ -300,9 +278,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setMeditationToggleLock(true);
-    showMeditationTransition(mode);
+    document.body.classList.add('meditation-shifting');
     void playMeditationHush(mode);
     state.meditationTransitionHandle = setTimeout(() => {
+      document.body.classList.remove('meditation-shifting');
       setMeditationToggleLock(false);
       state.meditationTransitionHandle = null;
     }, CONFIG.meditationScreenFadeMs);
@@ -366,6 +345,34 @@ document.addEventListener('DOMContentLoaded', () => {
       clearTimeout(state[key]);
       state[key] = null;
     }
+  }
+
+  function presentManualPortrait(key) {
+    const scene = MANUAL_ARCHIVE_SCENES[key];
+    if (!scene) return;
+
+    clearAmbientVisual();
+    presentSceneCard({
+      mode: 'scene',
+      topic: scene.topic,
+      asset_kind: 'official_portrait',
+      caption: scene.caption,
+      image_data_url: scene.image_data_url,
+      countdown_seconds: 15,
+      timing: {
+        fade_in_ms: 900,
+        hold_ms: 13_200,
+        fade_out_ms: 900,
+        total_ms: 15_000,
+      },
+    });
+  }
+
+  function revealEncryptedAccessNotice() {
+    for (const line of ENCRYPTED_ACCESS_MESSAGE) {
+      writeLine(line, 'system');
+    }
+    scrollToBottom();
   }
 
   function presentAmbientVisual(scene, totalMs) {
@@ -969,15 +976,12 @@ document.addEventListener('DOMContentLoaded', () => {
     clearIdleDriftTimer();
     document.body.classList.add('meditation');
     setMeditationToggleLabel(true);
-    dom.meditationToggle.setAttribute('aria-pressed', 'true');
 
-    starfield.setSpeed(CONFIG.starSpeedMeditate);
+    starfield.setMeditation(true);
 
     startGhostRadio();
     startPinkNoise();
     fadeMeditationAudioIn();
-
-    writeLine('FURAI: entering meditation field', 'system');
   }
 
   function exitMeditation() {
@@ -987,9 +991,8 @@ document.addEventListener('DOMContentLoaded', () => {
     state.meditation = false;
     document.body.classList.remove('meditation');
     setMeditationToggleLabel(false);
-    dom.meditationToggle.setAttribute('aria-pressed', 'false');
 
-    starfield.setSpeed(CONFIG.starSpeedNormal);
+    starfield.setMeditation(false);
 
     stopGhostRadio();
     stopPinkNoise();
@@ -999,7 +1002,6 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.meditationAudio.currentTime = 0;
     }
 
-    writeLine('FURAI: meditation field closed', 'system');
     markActivity();
   }
 
@@ -1022,9 +1024,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (bootMode === 'instant') {
-      writeLine('FURAI: communication channel open', 'furai');
+      writeLine('FURAI: ask about Velorum, the crew, sealed records, or meditation mode.', 'furai');
     } else {
-      await typeLine('FURAI: communication channel open', 'furai');
+      await typeLine('FURAI: ask about Velorum, the crew, sealed records, or meditation mode.', 'furai');
     }
 
     state.bootComplete = true;
@@ -1091,6 +1093,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = dom.canvas;
     const ctx    = canvas.getContext('2d');
     let speed    = CONFIG.starSpeedNormal;
+    let targetSpeed = CONFIG.starSpeedNormal;
+    let atmosphere = 0;
+    let targetAtmosphere = 0;
     let stars    = [];
 
     function resize() {
@@ -1114,6 +1119,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function frame() {
+      const deepDrift = targetAtmosphere > 0.5 || atmosphere > 0.35;
+      const speedEase = deepDrift ? CONFIG.starSpeedEaseMeditate : CONFIG.starSpeedEaseNormal;
+      const atmosphereEase = deepDrift
+        ? CONFIG.starAtmosphereEaseMeditate
+        : CONFIG.starAtmosphereEaseNormal;
+
+      speed += (targetSpeed - speed) * speedEase;
+      atmosphere += (targetAtmosphere - atmosphere) * atmosphereEase;
+
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1131,11 +1145,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) continue;
 
         const depth = 1 - star.z / canvas.width;
-        const size = Math.max(0.32, depth * 2.15 * star.size);
-        const alpha = Math.min(1, 0.34 + depth * 0.72);
-        ctx.shadowColor = '#ffb347';
-        ctx.shadowBlur  = 7 * star.size + depth * 5;
-        ctx.fillStyle   = 'rgba(255, 179, 71, ' + alpha + ')';
+        const size = Math.max(0.3, depth * (2 + atmosphere * 0.28) * star.size);
+        const alpha = Math.min(1, 0.28 + depth * (0.66 + atmosphere * 0.18));
+        const glowAlpha = 0.34 + atmosphere * 0.16;
+
+        ctx.shadowColor = 'rgba(255, 205, 132, ' + glowAlpha + ')';
+        ctx.shadowBlur  = (5.5 * star.size + depth * 3.8) * (1 + atmosphere * 0.08);
+        ctx.fillStyle   = 'rgba(255, 197, 112, ' + alpha + ')';
         ctx.beginPath();
         ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
         ctx.fill();
@@ -1149,6 +1165,8 @@ document.addEventListener('DOMContentLoaded', () => {
       resize();
       buildStars();
       window.addEventListener('resize', () => {
+        if (state.inputFocused && document.activeElement === dom.input) return;
+
         resize();
         buildStars();
       });
@@ -1157,7 +1175,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return {
       init,
-      setSpeed(s) { speed = s; },
+      setMeditation(active) {
+        targetSpeed = active ? CONFIG.starSpeedMeditate : CONFIG.starSpeedNormal;
+        targetAtmosphere = active
+          ? CONFIG.starAtmosphereMeditate
+          : CONFIG.starAtmosphereNormal;
+      },
     };
   })();
 
@@ -1172,8 +1195,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   dom.input.addEventListener('focus', () => {
+    state.inputFocused = true;
+    document.body.classList.add('inputFocused');
     markActivity();
     setTimeout(scrollToBottom, 120);
+  });
+
+  dom.input.addEventListener('blur', () => {
+    state.inputFocused = false;
+    document.body.classList.remove('inputFocused');
+    setViewportHeight();
   });
 
   dom.meditationToggle.addEventListener('click', () => {
@@ -1189,13 +1220,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  if (dom.rithanKeyButton) {
+    dom.rithanKeyButton.addEventListener('click', () => {
+      markActivity();
+      presentManualPortrait('rithan');
+    });
+  }
+
+  if (dom.viikaaKeyButton) {
+    dom.viikaaKeyButton.addEventListener('click', () => {
+      markActivity();
+      presentManualPortrait('viikaa');
+    });
+  }
+
+  if (dom.encryptedKeyButton) {
+    dom.encryptedKeyButton.addEventListener('click', () => {
+      markActivity();
+      revealEncryptedAccessNotice();
+    });
+  }
+
   setViewportHeight();
   window.addEventListener('resize', setViewportHeight);
   window.addEventListener('orientationchange', setViewportHeight);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', setViewportHeight);
-    window.visualViewport.addEventListener('scroll', setViewportHeight);
-  }
 
   starfield.init();
   state.visitorToken = getOrCreateVisitorToken();

@@ -67,12 +67,21 @@ The private engine layer additionally uses Cloudflare AI, KV, and Vectorize.
 This repository contains the **public interface layer** of FURAI.
 
 ```
-src/
+.
+├── ui.ts
+├── lib/
+│   └── officialPortraits.generated.ts
 └── ui/
-    ├── render.ts    # Terminal HTML renderer
-    ├── script.ts    # Client-side terminal behavior
-    └── styles.ts    # Visual system and terminal styling
+    ├── render.ts
+    ├── script.ts
+    └── styles.ts
 ```
+
+- `ui.ts` - public UI entry point
+- `lib/officialPortraits.generated.ts` - public portrait assets used by the interface layer
+- `ui/render.ts` - welcome, pricing, and terminal HTML renderers
+- `ui/styles.ts` - visual system and terminal styling
+- `ui/script.ts` - client-side terminal behavior
 
 **Not included in this repository:**
 - Core AI engine
