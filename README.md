@@ -1,17 +1,17 @@
 # FURAI
- 
+
 Cinematic AI terminal by FURAI lab.
- 
+
 **[→ furai.space](https://furai.space)**
- 
-<img src="https://img.shields.io/badge/status-live-brightgreen"> <img src="https://img.shields.io/badge/runtime-cloudflare_workers-F38020?logo=cloudflare&logoColor=white"> <img src="https://img.shields.io/badge/license-MIT-green">
- 
+
+<img src="https://img.shields.io/badge/status-live-brightgreen"> <img src="https://img.shields.io/badge/runtime-cloudflare_workers-F38020?logo=cloudflare&logoColor=white"> <img src="https://img.shields.io/badge/language-TypeScript-3178C6?logo=typescript&logoColor=white"> <img src="https://img.shields.io/badge/license-MIT-green">
+
 ---
 
 ```text
 ARCHIVE VESSEL: VELORUM
 status: drifting between signals
-last contact: now
+last contact: unknown
 ```
 
 ## What is FURAI
@@ -64,24 +64,18 @@ The private engine layer additionally uses Cloudflare AI, KV, and Vectorize.
 
 ## Repository Structure
 
-This repository contains the **public interface layer** of FURAI.
+This repository contains the **public interface layer** of FURAI. The engine, memory, and lore systems are private.
 
 ```
 .
-├── ui.ts
+├── ui.ts                                  # Entry point — routes requests to renderers
 ├── lib/
-│   └── officialPortraits.generated.ts
+│   └── officialPortraits.generated.ts    # Portrait assets used by the interface
 └── ui/
-    ├── render.ts
-    ├── script.ts
-    └── styles.ts
+    ├── render.ts                          # Welcome, pricing, and terminal HTML renderers
+    ├── script.ts                          # Client-side terminal behavior and interactions
+    └── styles.ts                          # Visual system, terminal styling, animations
 ```
-
-- `ui.ts` - public UI entry point
-- `lib/officialPortraits.generated.ts` - public portrait assets used by the interface layer
-- `ui/render.ts` - welcome, pricing, and terminal HTML renderers
-- `ui/styles.ts` - visual system and terminal styling
-- `ui/script.ts` - client-side terminal behavior
 
 **Not included in this repository:**
 - Core AI engine
@@ -117,6 +111,16 @@ Velorum does not answer questions. Velorum *receives* you — and responds from 
 
 ---
 
+## Contributing
+
+This repository contains the public interface layer only. The core engine is closed source.
+
+This repository is the public interface layer only. It is not independently runnable without the private engine.
+
+Bug reports and interface suggestions are welcome via [Issues](../../issues). Pull requests are not accepted at this time — FURAI lab maintains full creative and technical control over the interface to preserve its atmospheric integrity.
+
+---
+
 ## FURAI lab
 
 A three-person startup studio building AI as atmosphere and memory.
@@ -125,7 +129,7 @@ A three-person startup studio building AI as atmosphere and memory.
 |---|---|
 | **Dima** | Founder, AI research, system architecture |
 | **Vika** | UX/UI, product design, visual language |
-| **Mister C** | Backend, frontend, infrastructure |
+| **B.C.** | Backend, frontend, infrastructure |
 
 ---
 
@@ -133,3 +137,9 @@ A three-person startup studio building AI as atmosphere and memory.
 
 Experimental project by FURAI lab.  
 The public interface will continue to evolve over time.
+
+---
+
+## License
+
+MIT — interface layer only. The AI engine, memory systems, and lore architecture are proprietary.
